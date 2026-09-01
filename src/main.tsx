@@ -1,8 +1,13 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
 import App from "./App";
 import "./index.css";
 import "./i18n";
+
+const convex = new ConvexReactClient(
+  import.meta.env.VITE_CONVEX_URL as string
+);
 
 class RootErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -44,8 +49,10 @@ class RootErrorBoundary extends React.Component<
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RootErrorBoundary>
-      <App />
-    </RootErrorBoundary>
+    <ConvexProvider client={convex}>
+      <RootErrorBoundary>
+        <App />
+      </RootErrorBoundary>
+    </ConvexProvider>
   </React.StrictMode>
 );

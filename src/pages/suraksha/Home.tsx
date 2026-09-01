@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, MapPin, BookOpen, Phone, ArrowRight, Shield } from "lucide-react";
 import { loadAlerts } from "../../utils/storage";
 import { loadZones } from "../../utils/storage";
@@ -10,6 +11,7 @@ import GuideCard from "../../components/suraksha/GuideCard";
 import StatCard from "../../components/suraksha/StatCard";
 
 export default function Home() {
+  const { t } = useTranslation();
   const alerts = loadAlerts();
   const zones = loadZones();
   const guides = loadGuides();
@@ -30,24 +32,20 @@ export default function Home() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-neutral-300 mb-6">
               <Shield className="w-3 h-3" />
-              Civilian Safety Platform
+              {t("app.tagline")}
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6">
-              Stay Alert.
-              <br />
-              Stay Safe.
+              {t("home.heroTitle")}
             </h1>
             <p className="text-base sm:text-lg text-neutral-400 leading-relaxed mb-8 max-w-lg">
-              Raksha Setu provides real-time disaster alerts, nearby safe zones,
-              safety guidance, and evacuation routes — helping civilians reach
-              safety quickly when every second counts.
+              {t("home.heroDescription")}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/alerts"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-neutral-900 text-sm font-medium rounded-lg hover:bg-neutral-100 transition-colors no-underline"
               >
-                View Live Alerts
+                {t("home.viewAlerts")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
@@ -55,7 +53,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/5 transition-colors no-underline"
               >
                 <MapPin className="w-4 h-4" />
-                Find Safe Zones
+                {t("home.findSafeZones")}
               </Link>
             </div>
           </div>
@@ -68,22 +66,22 @@ export default function Home() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard
             icon={AlertTriangle}
-            label="Active Alerts"
+            label={t("home.activeAlerts")}
             value={activeAlerts}
           />
           <StatCard
             icon={MapPin}
-            label="Safe Zones"
+            label={t("home.safeZonesCount")}
             value={availableZones}
           />
           <StatCard
             icon={BookOpen}
-            label="Safety Guides"
+            label={t("home.safetyGuides")}
             value={guides.length}
           />
           <StatCard
             icon={Phone}
-            label="Helplines"
+            label={t("home.emergencyHelplines")}
             value={helplines.length}
           />
         </div>
@@ -97,18 +95,17 @@ export default function Home() {
           </div>
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-neutral-900">
-              Safety Status — {criticalAlerts.length} High/Critical Alert
-              {criticalAlerts.length !== 1 ? "s" : ""} Active
+              {t("home.safetyStatus")} — {criticalAlerts.length} {t("home.alertsActive")}
             </h3>
             <p className="text-xs text-neutral-500 mt-0.5">
-              Stay informed and follow official guidance. Monitor alerts regularly.
+              {t("home.heroDescription")}
             </p>
           </div>
           <Link
             to="/alerts"
             className="text-xs text-neutral-600 hover:text-neutral-900 font-medium no-underline flex items-center gap-1"
           >
-            View All <ArrowRight className="w-3 h-3" />
+            {t("home.viewAll")} <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
       </section>
@@ -116,10 +113,10 @@ export default function Home() {
       {/* Disaster Types */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-14">
         <h2 className="text-lg font-semibold text-neutral-900 mb-1">
-          Supported Disasters
+          {t("safeZones.title")}
         </h2>
         <p className="text-xs text-neutral-400 mb-6">
-          Select a disaster type to view specific alerts, safe zones, and guides
+          {t("safeZones.subtitle")}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {DISASTER_TYPES.map((dt) => {
@@ -148,17 +145,17 @@ export default function Home() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-semibold text-neutral-900 mb-1">
-              Latest Alerts
+              {t("home.latestAlerts")}
             </h2>
             <p className="text-xs text-neutral-400">
-              Most recent disaster alerts in your region
+              {t("alerts.subtitle")}
             </p>
           </div>
           <Link
             to="/alerts"
             className="text-xs text-neutral-600 hover:text-neutral-900 font-medium no-underline flex items-center gap-1"
           >
-            View All <ArrowRight className="w-3 h-3" />
+            {t("home.viewAll")} <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -173,17 +170,17 @@ export default function Home() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-semibold text-neutral-900 mb-1">
-              Disaster Safety Guides
+              {t("home.recentGuides")}
             </h2>
             <p className="text-xs text-neutral-400">
-              Know what to do before, during, and after a disaster
+              {t("guides.subtitle")}
             </p>
           </div>
           <Link
             to="/guides"
             className="text-xs text-neutral-600 hover:text-neutral-900 font-medium no-underline flex items-center gap-1"
           >
-            View All <ArrowRight className="w-3 h-3" />
+            {t("home.viewAll")} <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">

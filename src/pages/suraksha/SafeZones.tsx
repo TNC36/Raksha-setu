@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router";
 import { useQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import {
   MapPin,
@@ -31,6 +32,7 @@ import { Alert } from "../../data/alerts";
 import { Facility } from "../../data/facilities";
 
 export default function SafeZones() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialDisaster = (searchParams.get("disaster") as DisasterType) || "Flood";
   const [disaster, setDisaster] = useState<DisasterType>(initialDisaster);
@@ -269,10 +271,9 @@ export default function SafeZones() {
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl font-semibold text-neutral-900 mb-1">
-            Safe Zones & Evacuation Routes
+            {t("safeZones.title")}
           </h1>
-          <p className="text-xs text-neutral-400">
-            Select a disaster type to view relevant safe zones, real-time alerts, and road-network evacuation routes.
+          <p className="text-xs text-neutral-400">              {t("safeZones.subtitle")}
           </p>
         </div>
         {/* Live data status indicator */}
@@ -280,17 +281,17 @@ export default function SafeZones() {
           {loadingLive ? (
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 text-amber-600 border border-amber-200">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-              SYNCING
+              {t("alerts.syncing")}
             </span>
           ) : liveStatus.facilities || liveStatus.earthquakes ? (
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-600 border border-green-200">
               <Wifi className="w-3 h-3" />
-              LIVE DATA
+              {t("status.live")}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-neutral-100 text-neutral-500 border border-neutral-200">
               <WifiOff className="w-3 h-3" />
-              DEMO MODE
+              {t("status.demo")}
             </span>
           )}
         </div>
@@ -330,7 +331,7 @@ export default function SafeZones() {
             className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors disabled:opacity-50"
           >
             <Crosshair className="w-3.5 h-3.5" />
-            {loadingLocation ? "Detecting…" : "Use My Location"}
+            {loadingLocation ? t("safeZones.detecting") : t("safeZones.useMyLocation")}
           </button>
 
           {userLocation && (
@@ -362,7 +363,7 @@ export default function SafeZones() {
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
               <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-1">
-                Nearest {disaster} Safe Zone
+                {t("safeZones.nearestSafeZone", { type: disaster })}
               </p>
               <h3 className="text-base font-semibold text-neutral-900">
                 {nearestZone.name}
@@ -405,7 +406,7 @@ export default function SafeZones() {
                 )}
               </div>
               <p className="text-[10px] text-neutral-400 mt-1">
-                Road-network route via {routeResult.source} — follows actual roads
+                {t("safeZones.roadNetworkRoute", { source: routeResult.source })}
               </p>
 
               {/* Hazard check result */}
@@ -435,7 +436,7 @@ export default function SafeZones() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors"
             >
               <MapPin className="w-3 h-3" />
-              Show on Map
+              {t("safeZones.showOnMap")}
             </button>
             <button
               onClick={() =>
@@ -444,7 +445,7 @@ export default function SafeZones() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
             >
               <Navigation className="w-3 h-3" />
-              Navigate
+              {t("safeZones.navigate")}
               <ExternalLink className="w-3 h-3" />
             </button>
           </div>
@@ -492,9 +493,8 @@ export default function SafeZones() {
           {zonesWithDistance.length === 0 ? (
             <div className="text-center py-12 bg-neutral-50 rounded-xl border border-neutral-200">
               <p className="text-sm text-neutral-400">
-                {convexZones === undefined
-                  ? "Loading safe zones from database…"
-                  : `No safe zones available for ${disaster}.`}
+                {convexZones === undefined                    ? t("common.loading")
+                    : t("safeZones.noZones", { type: disaster })}
               </p>
             </div>
           ) : (
@@ -549,7 +549,7 @@ export default function SafeZones() {
                         }}
                         className="text-[11px] text-neutral-500 hover:text-neutral-900 transition-colors"
                       >
-                        Show on Map
+                        {t("safeZones.showOnMap")}
                       </button>
                       <button
                         onClick={(e) => {
@@ -558,7 +558,7 @@ export default function SafeZones() {
                         }}
                         className="text-[11px] text-neutral-500 hover:text-neutral-900 transition-colors inline-flex items-center gap-1"
                       >
-                        Navigate <ExternalLink className="w-2.5 h-2.5" />
+                        {t("safeZones.navigate")} <ExternalLink className="w-2.5 h-2.5" />
                       </button>
                     </div>
                   </div>
@@ -577,7 +577,7 @@ export default function SafeZones() {
               {disaster} Alerts
             </h3>
             {filteredAlerts.length === 0 ? (
-              <p className="text-xs text-neutral-400">No active alerts.</p>
+              <p className="text-xs text-neutral-400">{t("alerts.noAlerts")}</p>
             ) : (
               <div className="space-y-2">
                 {filteredAlerts.slice(0, 5).map((alert) => (
@@ -614,7 +614,7 @@ export default function SafeZones() {
           {liveFacilities.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-neutral-900 mb-3">
-                🏥 Nearby Facilities (Live)
+                🏥 {t("safeZones.nearbyFacilities")}
               </h3>
               <div className="space-y-2">
                 {liveFacilities.slice(0, 6).map((fac) => (
@@ -656,7 +656,7 @@ export default function SafeZones() {
           {/* Community Reports */}
           <div>
             <h3 className="text-sm font-semibold text-neutral-900 mb-3">
-              Community Reports
+              {t("safeZones.communityReports")}
             </h3>
             <p className="text-[10px] text-neutral-400 mb-2 italic">
               Demo reports — for demonstration purposes only

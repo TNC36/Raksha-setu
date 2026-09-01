@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { DISASTER_TYPES, DISASTER_META, DisasterType } from "../../data/disasters";
 import { Alert } from "../../data/alerts";
@@ -9,13 +10,13 @@ import { fetchEarthquakes } from "../../services/earthquake";
 import { fetchDisasterAlerts } from "../../services/disasters";
 
 export default function AlertsPage() {
+  const { t } = useTranslation();
   const convexAlerts = useQuery(api.alerts.list);
   const [liveAlerts, setLiveAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<DisasterType | "All">("All");
 
-  // Map Convex documents to Alert shape
   const dbAlerts: Alert[] = (convexAlerts || []).map((a) => ({
     id: a._id,
     type: a.type,
@@ -31,10 +32,8 @@ export default function AlertsPage() {
     sourceUrl: a.sourceUrl,
   }));
 
-  // All alerts: live API + Convex DB
   const allAlerts: Alert[] = [...liveAlerts, ...dbAlerts];
 
-  // Deduplicate by ID
   const seen = new Set<string>();
   const uniqueAlerts = allAlerts.filter((a) => {
     if (seen.has(a.id)) return false;
@@ -69,7 +68,6 @@ export default function AlertsPage() {
     setLoading(false);
   }
 
-  // Auto-fetch on mount
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -100,31 +98,31 @@ export default function AlertsPage() {
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="w-5 h-5 text-neutral-600" />
             <h1 className="text-xl font-semibold text-neutral-900">
-              Emergency Alerts
+              {t("alerts.title")}
             </h1>
           </div>
           <p className="text-sm text-neutral-500">
-            Real-time disaster alerts from USGS, ReliefWeb (UN OCHA), and weather services — plus platform-managed alerts from the database.
+            {t("alerts.subtitle")}
           </p>
           <p className="text-[10px] text-neutral-400 mt-1">
-            Database alerts stored in Convex · External data fetched live from APIs
+            {t("alerts.dataSource")}
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <div className="text-[10px] text-right">
             {lastSync && (
-              <p className="text-neutral-400">Last sync: {lastSync}</p>
+              <p className="text-neutral-400">{t("alerts.lastSync")}: {lastSync}</p>
             )}
             <p className="text-neutral-500 font-medium">
               {liveCount > 0 ? (
                 <span className="inline-flex items-center gap-1">
                   <Wifi className="w-3 h-3 text-green-500" />
-                  {liveCount} live alert{liveCount !== 1 ? "s" : ""}
+                  {liveCount} {t("alerts.liveAlerts")}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1">
                   <WifiOff className="w-3 h-3" />
-                  {dbCount > 0 ? "Database alerts" : "No live alerts"}
+                  {t("alerts.demoOnly")}
                 </span>
               )}
             </p>
@@ -133,7 +131,7 @@ export default function AlertsPage() {
             onClick={refreshLiveData}
             disabled={loading}
             className="p-2 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors disabled:opacity-50"
-            title="Refresh live alerts"
+            title={t("alerts.refresh")}
           >
             <RefreshCw
               className={`w-4 h-4 text-neutral-500 ${loading ? "animate-spin" : ""}`}
@@ -142,7 +140,6 @@ export default function AlertsPage() {
         </div>
       </div>
 
-      {/* Filter chips */}
       <div className="flex flex-wrap gap-2 mb-8">
         <button
           onClick={() => setSelectedType("All")}
@@ -152,7 +149,7 @@ export default function AlertsPage() {
               : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
           }`}
         >
-          All
+          {t("alerts.all")}
         </button>
         {DISASTER_TYPES.map((dt) => {
           const meta = DISASTER_META[dt];
@@ -174,31 +171,20 @@ export default function AlertsPage() {
 
       <p className="text-xs text-neutral-400 mb-4">
         {sorted.length} alert{sorted.length !== 1 ? "s" : ""} found
-        {liveCount > 0 && ` (${liveCount} from live sources)`}
-        {dbCount > 0 && ` (${dbCount} from database)`}
+        {liveCount > 0 && ` (${liveCount} ${t("alerts.liveAlerts")})`}
+        {dbCount > 0 && ` (${dbCount} ${t("alerts.demoOnly")})`}
       </p>
 
-      {/* Data source legend */}
-      <div className="flex flex-wrap gap-3 mb-6 text-[10px] text-neutral-400">
-        <span className="inline-flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-green-500" /> LIVE = real-time external API data
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-blue-500" /> Database = admin-created alerts stored in Convex
-        </span>
-      </div>
-
-      {/* Alerts list */}
       {sorted.length === 0 ? (
         <div className="text-center py-20 text-neutral-400">
           <p className="text-sm">
-            {convexAlerts === undefined ? "Loading alerts…" : "No alerts for this disaster type."}
+            {convexAlerts === undefined ? t("common.loading") : t("alerts.noAlerts")}
           </p>
           <button
             onClick={refreshLiveData}
             className="mt-3 text-xs text-neutral-600 hover:text-neutral-900 font-medium"
           >
-            Refresh live data
+            {t("alerts.refresh")}
           </button>
         </div>
       ) : (

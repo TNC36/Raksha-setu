@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { BookOpen } from "lucide-react";
 import { DISASTER_TYPES, DISASTER_META, DisasterType } from "../../data/disasters";
 import GuideCard from "../../components/suraksha/GuideCard";
 
 export default function GuidesPage() {
+  const { t } = useTranslation();
   const guidesData = useQuery(api.guides.list);
   const [selectedType, setSelectedType] = useState<DisasterType | "All">("All");
 
@@ -30,11 +32,11 @@ export default function GuidesPage() {
         <div className="flex items-center gap-2 mb-2">
           <BookOpen className="w-5 h-5 text-neutral-600" />
           <h1 className="text-xl font-semibold text-neutral-900">
-            Disaster Safety Guides
+            {t("guides.title")}
           </h1>
         </div>
         <p className="text-sm text-neutral-500">
-          Know what to do before, during, and after each type of disaster.
+          {t("guides.subtitle")}
         </p>
       </div>
 
@@ -70,15 +72,15 @@ export default function GuidesPage() {
 
       <p className="text-xs text-neutral-400 mb-4">
         {filtered.length} guide{filtered.length !== 1 ? "s" : ""} found
-        {guidesData === undefined && " · Loading…"}
+        {guidesData === undefined && " · " + t("common.loading")}
       </p>
 
       {filtered.length === 0 ? (
         <div className="text-center py-20 text-neutral-400">
           <p className="text-sm">
             {guidesData === undefined
-              ? "Loading guides from database…"
-              : "No guides for this disaster type."}
+              ? t("common.loading")
+              : t("guides.noGuides")}
           </p>
         </div>
       ) : (

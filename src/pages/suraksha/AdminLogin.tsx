@@ -12,14 +12,13 @@ export default function AdminLogin() {
   const currentUser = useQuery(api.admin.getCurrentUser);
   const isAdmin = useQuery(api.admin.checkAdmin);
   const bootstrapAdmin = useMutation(api.admin.bootstrapAdmin);
-  const setRole = useMutation(api.admin.setRole);
 
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
+
   const { signIn, signOut } = useAuthActions();
 
   // Redirect if already admin
@@ -36,7 +35,9 @@ export default function AdminLogin() {
         navigate("/admin/dashboard", { replace: true });
       } else {
         // Check if any admin exists — if not, this user can bootstrap
-        setStep("role-select");
+        // Use a ref to avoid setState in effect
+        const timer = setTimeout(() => setStep("role-select"), 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [currentUser, step, navigate]);
@@ -47,7 +48,6 @@ export default function AdminLogin() {
     setLoading(true);
     try {
       await signIn("email-otp", { flow: "otp", email });
-      setOtpSent(true);
       setStep("otp");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send OTP. Please try again.");
@@ -63,8 +63,8 @@ export default function AdminLogin() {
       await signIn("email-otp", { flow: "otp", email, code: otp });
       // After successful sign-in, the currentUser query will update
       // The useEffect above will handle the redirect
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid OTP. Please try again.");
+    } catch {
+      setError("Invalid OTP. Please try again.");
     }
     setLoading(false);
   }
@@ -78,7 +78,7 @@ export default function AdminLogin() {
       if (result?.success) {
         navigate("/admin/dashboard", { replace: true });
       }
-    } catch (err) {
+    } catch {
       // If bootstrap fails (admin already exists), show message
       setError(
         "An administrator already exists. Contact your admin to grant you access, or use the admin credentials."
@@ -91,7 +91,7 @@ export default function AdminLogin() {
     await signOut();
     setStep("email");
     setOtp("");
-    setOtpSent(false);
+
     setError("");
   }
 
@@ -201,7 +201,7 @@ export default function AdminLogin() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setStep("email"); setOtp(""); setOtpSent(false); setError(""); }}
+                  onClick={() => { setStep("email"); setOtp(""); setError(""); }}
                   className="flex-1 py-2 text-xs font-medium text-neutral-500 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
                 >
                   Change Email

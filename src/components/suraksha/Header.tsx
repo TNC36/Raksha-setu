@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Shield, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
 import { isAdminLoggedIn, adminLogout, isUserLoggedIn, getCurrentUser, logoutUser } from "../../utils/storage";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSelector from "./LanguageSelector";
 
 const NAV_LINKS = [
-  { to: "/", label: "Home" },
-  { to: "/alerts", label: "Alerts" },
-  { to: "/safe-zones", label: "Safe Zones" },
-  { to: "/guides", label: "Guides" },
-  { to: "/helplines", label: "Helplines" },
+  { to: "/", key: "nav.home" },
+  { to: "/alerts", key: "nav.alerts" },
+  { to: "/safe-zones", key: "nav.safeZones" },
+  { to: "/guides", key: "nav.guides" },
+  { to: "/helplines", key: "nav.helplines" },
 ];
 
 export default function Header() {
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const adminLoggedIn = isAdminLoggedIn();
@@ -41,10 +43,10 @@ export default function Header() {
             <Shield className="w-6 h-6 text-neutral-900" strokeWidth={1.8} />
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold text-neutral-900 tracking-tight">
-                Raksha Setu
+                {t("app.name")}
               </span>
               <span className="text-[10px] text-neutral-400 tracking-wide uppercase">
-                Disaster Safety Platform
+                {t("app.tagline")}
               </span>
             </div>
           </Link>
@@ -61,7 +63,7 @@ export default function Header() {
                     : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
                 }`}
               >
-                {link.label}
+                {t(link.key)}
               </Link>
             ))}
 
@@ -76,14 +78,14 @@ export default function Header() {
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
-                  Admin
+                  {t("nav.admin")}
                 </Link>
                 <button
                   onClick={handleAdminLogout}
                   className="px-3 py-1.5 text-sm rounded-md text-neutral-500 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  Logout
+                  {t("nav.logout")}
                 </button>
               </>
             ) : userLoggedIn ? (
@@ -97,7 +99,7 @@ export default function Header() {
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
-                  Dashboard
+                  {t("nav.dashboard")}
                 </Link>
                 <span className="text-xs text-neutral-400 hidden lg:inline">
                   {user?.name}
@@ -119,13 +121,13 @@ export default function Header() {
                       : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
                   }`}
                 >
-                  Sign In
+                  {t("nav.signIn")}
                 </Link>
                 <Link
                   to="/register"
                   className="px-3 py-1.5 text-sm rounded-md bg-neutral-900 text-white no-underline hover:bg-neutral-800 transition-colors"
                 >
-                  Register
+                  {t("nav.register")}
                 </Link>
               </>
             )}
@@ -161,7 +163,7 @@ export default function Header() {
                     : "text-neutral-600 hover:bg-neutral-100"
                 }`}
               >
-                {link.label}
+                {t(link.key)}
               </Link>
             ))}
             <div className="h-px bg-neutral-100 my-1" />
@@ -173,14 +175,14 @@ export default function Header() {
                   className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100 flex items-center gap-1.5"
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
-                  Admin Dashboard
+                  {t("admin.dashboard")}
                 </Link>
                 <button
                   onClick={handleAdminLogout}
                   className="px-3 py-2 text-sm rounded-md text-left text-red-600 hover:bg-red-50 flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  Logout
+                  {t("nav.logout")}
                 </button>
               </>
             ) : userLoggedIn ? (
@@ -191,17 +193,17 @@ export default function Header() {
                   className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100 flex items-center gap-1.5"
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
-                  My Dashboard
+                  {t("nav.dashboard")}
                 </Link>
                 <span className="px-3 py-1 text-xs text-neutral-400">
-                  Signed in as {user?.name}
+                  {user?.name}
                 </span>
                 <button
                   onClick={handleUserLogout}
                   className="px-3 py-2 text-sm rounded-md text-left text-red-600 hover:bg-red-50 flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  Sign Out
+                  {t("nav.signOut")}
                 </button>
               </>
             ) : (
@@ -212,14 +214,14 @@ export default function Header() {
                   className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100 flex items-center gap-1.5"
                 >
                   <User className="w-3.5 h-3.5" />
-                  Sign In
+                  {t("nav.signIn")}
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileOpen(false)}
                   className="px-3 py-2 text-sm rounded-md no-underline bg-neutral-900 text-white text-center"
                 >
-                  Create Account
+                  {t("nav.createAccount")}
                 </Link>
               </>
             )}

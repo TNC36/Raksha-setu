@@ -1,8 +1,10 @@
 import { useQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { Phone, ExternalLink } from "lucide-react";
 
 export default function HelplinesPage() {
+  const { t } = useTranslation();
   const helplines = useQuery(api.helplines.list);
 
   return (
@@ -11,11 +13,11 @@ export default function HelplinesPage() {
         <div className="flex items-center gap-2 mb-2">
           <Phone className="w-5 h-5 text-neutral-600" />
           <h1 className="text-xl font-semibold text-neutral-900">
-            Emergency Helplines
+            {t("helplines.title")}
           </h1>
         </div>
         <p className="text-sm text-neutral-500">
-          Important emergency numbers. Tap to call on mobile devices.
+          {t("helplines.subtitle")}
         </p>
       </div>
 
