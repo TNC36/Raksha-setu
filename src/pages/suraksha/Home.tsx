@@ -38,9 +38,9 @@ export default function Home() {
               Stay Safe.
             </h1>
             <p className="text-base sm:text-lg text-neutral-400 leading-relaxed mb-8 max-w-lg">
-              Suraksha Setu helps civilians find disaster alerts, nearby safe
-              zones, emergency guides and important helpline numbers during
-              critical situations.
+              Raksha Setu provides real-time disaster alerts, nearby safe zones,
+              safety guidance, and evacuation routes — helping civilians reach
+              safety quickly when every second counts.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -101,8 +101,7 @@ export default function Home() {
               {criticalAlerts.length !== 1 ? "s" : ""} Active
             </h3>
             <p className="text-xs text-neutral-500 mt-0.5">
-              Stay informed and follow official guidance. Monitor alerts
-              regularly.
+              Stay informed and follow official guidance. Monitor alerts regularly.
             </p>
           </div>
           <Link

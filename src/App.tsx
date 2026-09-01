@@ -2,10 +2,13 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import Header from "./components/suraksha/Header";
 import Footer from "./components/suraksha/Footer";
 import Home from "./pages/suraksha/Home";
+import Login from "./pages/suraksha/Login";
+import Register from "./pages/suraksha/Register";
 import AlertsPage from "./pages/suraksha/AlertsPage";
 import SafeZones from "./pages/suraksha/SafeZones";
 import GuidesPage from "./pages/suraksha/GuidesPage";
 import HelplinesPage from "./pages/suraksha/HelplinesPage";
+import Dashboard from "./pages/suraksha/Dashboard";
 import AdminLogin from "./pages/suraksha/AdminLogin";
 import AdminDashboard from "./pages/suraksha/AdminDashboard";
 import ManageAlerts from "./admin/suraksha/ManageAlerts";
@@ -26,6 +29,11 @@ export default function App() {
             <Route path="/safe-zones" element={<SafeZones />} />
             <Route path="/guides" element={<GuidesPage />} />
             <Route path="/helplines" element={<HelplinesPage />} />
+
+            {/* Civilian auth & dashboard */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

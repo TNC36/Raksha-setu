@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
-import { Shield, Lock, User } from "lucide-react";
-import { adminLogin, isAdminLoggedIn } from "../../utils/storage";
+import { Shield, Lock, Mail } from "lucide-react";
+import { loginUser, isUserLoggedIn } from "../../utils/storage";
 
-export default function AdminLogin() {
+export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isAdminLoggedIn()) {
-      navigate("/admin/dashboard", { replace: true });
+    if (isUserLoggedIn()) {
+      navigate("/dashboard", { replace: true });
     }
   }, [navigate]);
 
@@ -22,10 +22,11 @@ export default function AdminLogin() {
     setLoading(true);
 
     setTimeout(() => {
-      if (adminLogin(username, password)) {
-        navigate("/admin/dashboard", { replace: true });
+      const result = loginUser(email, password);
+      if (result.ok) {
+        navigate("/dashboard", { replace: true });
       } else {
-        setError("Invalid credentials. Please try again.");
+        setError(result.error || "Invalid email or password.");
       }
       setLoading(false);
     }, 300);
@@ -39,10 +40,10 @@ export default function AdminLogin() {
             <Shield className="w-6 h-6 text-white" strokeWidth={1.8} />
           </div>
           <h1 className="text-lg font-semibold text-neutral-900">
-            Admin Login
+            Sign In
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
-            Raksha Setu Administration
+            Access your Raksha Setu dashboard
           </p>
         </div>
 
@@ -58,16 +59,16 @@ export default function AdminLogin() {
 
           <div>
             <label className="block text-xs font-medium text-neutral-700 mb-1.5">
-              Username
+              Email
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
               <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 transition-colors"
-                placeholder="Enter username"
+                placeholder="Enter your email"
                 required
               />
             </div>
@@ -84,7 +85,7 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 transition-colors"
-                placeholder="Enter password"
+                placeholder="Enter your password"
                 required
               />
             </div>
@@ -98,20 +99,16 @@ export default function AdminLogin() {
             {loading ? "Signing in…" : "Sign In"}
           </button>
 
-          <p className="text-[10px] text-neutral-400 text-center leading-relaxed">
-            Prototype credentials only. Production deployments should use backend
-            authentication with hashed passwords and role-based access control.
+          <p className="text-xs text-neutral-400 text-center">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-neutral-700 font-medium hover:underline"
+            >
+              Create one
+            </Link>
           </p>
         </form>
-
-        <p className="text-xs text-neutral-500 text-center mt-4">
-          <Link
-            to="/"
-            className="text-neutral-600 hover:text-neutral-900 no-underline"
-          >
-            ← Back to Raksha Setu
-          </Link>
-        </p>
       </div>
     </div>
   );

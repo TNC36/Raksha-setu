@@ -2,16 +2,12 @@ import { DEFAULT_ALERTS, Alert } from "../data/alerts";
 import { DEFAULT_ZONES, SafeZone } from "../data/zones";
 import { DEFAULT_GUIDES, Guide } from "../data/guides";
 import { DEFAULT_HELPLINES, Helpline } from "../data/helplines";
-import { DEFAULT_POSTS, Post } from "../data/posts";
-import { DEFAULT_COMMENTS, Comment } from "../data/comments";
 
 type StorageKey =
   | "raksha_alerts"
   | "raksha_zones"
   | "raksha_guides"
   | "raksha_helplines"
-  | "raksha_posts"
-  | "raksha_comments"
   | "raksha_users"
   | "raksha_current_user"
   | "raksha_admin";
@@ -101,26 +97,6 @@ export function loadHelplines(): Helpline[] {
 
 export function saveHelplines(helplines: Helpline[]): void {
   saveDataRaw("raksha_helplines", helplines);
-}
-
-// ── Posts ───────────────────────────────────────────────────
-
-export function loadPosts(): Post[] {
-  return loadDataRaw<Post[]>("raksha_posts", DEFAULT_POSTS);
-}
-
-export function savePosts(posts: Post[]): void {
-  saveDataRaw("raksha_posts", posts);
-}
-
-// ── Comments ────────────────────────────────────────────────
-
-export function loadComments(): Comment[] {
-  return loadDataRaw<Comment[]>("raksha_comments", DEFAULT_COMMENTS);
-}
-
-export function saveComments(comments: Comment[]): void {
-  saveDataRaw("raksha_comments", comments);
 }
 
 // ── User Auth (Civilian) ────────────────────────────────────

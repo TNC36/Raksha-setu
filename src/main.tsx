@@ -16,7 +16,7 @@ class RootErrorBoundary extends React.Component<
     };
   }
   componentDidCatch(err: Error) {
-    console.error("[Suraksha Setu] Runtime error:", err);
+    console.error("[Raksha Setu] Runtime error:", err);
   }
   render() {
     if (this.state.hasError) {

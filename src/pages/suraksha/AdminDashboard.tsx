@@ -6,8 +6,6 @@ import {
   BookOpen,
   Phone,
   LayoutDashboard,
-  Shield,
-  Activity,
   Globe,
   Volume2,
 } from "lucide-react";
@@ -71,22 +69,15 @@ export default function AdminDashboard() {
           </h1>
         </div>
         <p className="text-sm text-neutral-500">
-          Suraksha Setu administration control center.
+          Raksha Setu administration — manage alerts, safe zones, guides, and
+          helplines.
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        <StatCard
-          icon={AlertTriangle}
-          label="Total Alerts"
-          value={alerts.length}
-        />
-        <StatCard
-          icon={AlertTriangle}
-          label="High / Critical"
-          value={highCritical}
-        />
+        <StatCard icon={AlertTriangle} label="Total Alerts" value={alerts.length} />
+        <StatCard icon={AlertTriangle} label="High / Critical" value={highCritical} />
         <StatCard icon={MapPin} label="Safe Zones" value={zones.length} />
         <StatCard icon={BookOpen} label="Guides" value={guides.length} />
       </div>
@@ -97,26 +88,10 @@ export default function AdminDashboard() {
           System Status
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatusCard
-            icon={Globe}
-            label="Public Platform"
-            status="Active"
-          />
-          <StatusCard
-            icon={AlertTriangle}
-            label="Alert System"
-            status="Active"
-          />
-          <StatusCard
-            icon={MapPin}
-            label="Safe Zone System"
-            status="Active"
-          />
-          <StatusCard
-            icon={Volume2}
-            label="Read Aloud"
-            status="Active"
-          />
+          <StatusCard icon={Globe} label="Public Platform" status="Active" />
+          <StatusCard icon={AlertTriangle} label="Alert System" status="Active" />
+          <StatusCard icon={MapPin} label="Safe Zone System" status="Active" />
+          <StatusCard icon={Volume2} label="Read Aloud" status="Active" />
         </div>
       </div>
 

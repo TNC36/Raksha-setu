@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
-import { Shield, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
-import { isAdminLoggedIn, adminLogout } from "../../utils/storage";
+import { Shield, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
+import { isAdminLoggedIn, adminLogout, isUserLoggedIn, getCurrentUser, logoutUser } from "../../utils/storage";
 
 const NAV_LINKS = [
   { to: "/", label: "Home" },
@@ -14,10 +14,18 @@ const NAV_LINKS = [
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const loggedIn = isAdminLoggedIn();
+  const adminLoggedIn = isAdminLoggedIn();
+  const userLoggedIn = isUserLoggedIn();
+  const user = getCurrentUser();
 
-  function handleLogout() {
+  function handleAdminLogout() {
     adminLogout();
+    setMobileOpen(false);
+    window.location.href = "/";
+  }
+
+  function handleUserLogout() {
+    logoutUser();
     setMobileOpen(false);
     window.location.href = "/";
   }
@@ -31,7 +39,7 @@ export default function Header() {
             <Shield className="w-6 h-6 text-neutral-900" strokeWidth={1.8} />
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold text-neutral-900 tracking-tight">
-                Suraksha Setu
+                Raksha Setu
               </span>
               <span className="text-[10px] text-neutral-400 tracking-wide uppercase">
                 Disaster Safety Platform
@@ -55,7 +63,7 @@ export default function Header() {
               </Link>
             ))}
 
-            {loggedIn ? (
+            {adminLoggedIn ? (
               <>
                 <Link
                   to="/admin/dashboard"
@@ -69,24 +77,55 @@ export default function Header() {
                   Admin
                 </Link>
                 <button
-                  onClick={handleLogout}
+                  onClick={handleAdminLogout}
                   className="px-3 py-1.5 text-sm rounded-md text-neutral-500 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   Logout
                 </button>
               </>
+            ) : userLoggedIn ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className={`px-3 py-1.5 text-sm rounded-md no-underline transition-colors flex items-center gap-1.5 ${
+                    location.pathname === "/dashboard"
+                      ? "bg-neutral-900 text-white"
+                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                  }`}
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  Dashboard
+                </Link>
+                <span className="text-xs text-neutral-400 hidden lg:inline">
+                  {user?.name}
+                </span>
+                <button
+                  onClick={handleUserLogout}
+                  className="px-3 py-1.5 text-sm rounded-md text-neutral-500 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1.5"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </>
             ) : (
-              <Link
-                to="/admin/login"
-                className={`px-3 py-1.5 text-sm rounded-md no-underline transition-colors ${
-                  location.pathname === "/admin/login"
-                    ? "bg-neutral-900 text-white"
-                    : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
-                }`}
-              >
-                Admin
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  className={`px-3 py-1.5 text-sm rounded-md no-underline transition-colors ${
+                    location.pathname === "/login"
+                      ? "bg-neutral-900 text-white"
+                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                  }`}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-3 py-1.5 text-sm rounded-md bg-neutral-900 text-white no-underline hover:bg-neutral-800 transition-colors"
+                >
+                  Register
+                </Link>
+              </>
             )}
           </nav>
 
@@ -117,7 +156,8 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            {loggedIn ? (
+            <div className="h-px bg-neutral-100 my-1" />
+            {adminLoggedIn ? (
               <>
                 <Link
                   to="/admin/dashboard"
@@ -128,21 +168,52 @@ export default function Header() {
                   Admin Dashboard
                 </Link>
                 <button
-                  onClick={handleLogout}
+                  onClick={handleAdminLogout}
                   className="px-3 py-2 text-sm rounded-md text-left text-red-600 hover:bg-red-50 flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   Logout
                 </button>
               </>
+            ) : userLoggedIn ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMobileOpen(false)}
+                  className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100 flex items-center gap-1.5"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  My Dashboard
+                </Link>
+                <span className="px-3 py-1 text-xs text-neutral-400">
+                  Signed in as {user?.name}
+                </span>
+                <button
+                  onClick={handleUserLogout}
+                  className="px-3 py-2 text-sm rounded-md text-left text-red-600 hover:bg-red-50 flex items-center gap-1.5"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out
+                </button>
+              </>
             ) : (
-              <Link
-                to="/admin/login"
-                onClick={() => setMobileOpen(false)}
-                className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100"
-              >
-                Admin Login
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100 flex items-center gap-1.5"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setMobileOpen(false)}
+                  className="px-3 py-2 text-sm rounded-md no-underline bg-neutral-900 text-white text-center"
+                >
+                  Create Account
+                </Link>
+              </>
             )}
           </nav>
         )}

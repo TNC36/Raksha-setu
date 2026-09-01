@@ -8,20 +8,21 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-neutral-400" strokeWidth={1.8} />
             <span className="text-sm font-semibold text-neutral-700">
-              Suraksha Setu
+              Raksha Setu
             </span>
           </div>
           <p className="text-xs text-neutral-500 max-w-md leading-relaxed">
-            A disaster and civilian safety platform. Built for safer communities.
+            A disaster management platform designed to help civilians access
+            critical safety information and reach shelter quickly.
           </p>
           <div className="w-12 h-px bg-neutral-200" />
           <p className="text-[11px] text-neutral-400 max-w-lg leading-relaxed">
-            Demo data is used for this MVP. Production deployment should use
-            verified and authoritative emergency data from government and
-            disaster management agencies.
+            This prototype uses demonstration data. Production deployment
+            should rely on verified and authoritative emergency data from
+            government and disaster management agencies.
           </p>
           <p className="text-[10px] text-neutral-300 mt-2">
-            © 2026 Suraksha Setu — Prototype for demonstration purposes only.
+            © 2026 Raksha Setu — Prototype for demonstration purposes only.
           </p>
         </div>
       </div>
