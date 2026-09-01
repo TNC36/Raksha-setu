@@ -82,6 +82,39 @@ export const setRole = mutation({
   },
 });
 
+/**
+ * Bootstrap the first admin user. Only works when no admin exists.
+ * This allows initial setup without requiring an existing admin.
+ */
+export const bootstrapAdmin = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // Check if any admin already exists
+    const existingAdmins = await ctx.db
+      .query("users")
+      .withIndex("role", (q) => q.eq("role", "admin"))
+      .first();
+    if (existingAdmins) {
+      throw new Error("An admin already exists. Use setRole to assign new admins.");
+    }
+
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Authentication required");
+
+    await ctx.db.patch(userId, { role: "admin" });
+    await ctx.db.insert("auditLogs", {
+      actor: userId,
+      action: "bootstrap_admin",
+      resource: "user",
+      resourceId: userId,
+      metadata: JSON.stringify({ role: "admin" }),
+      timestamp: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
 /** Update user profile (own profile only) */
 export const updateProfile = mutation({
   args: {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { loadAlerts } from "../../utils/storage";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { DISASTER_TYPES, DISASTER_META, DisasterType } from "../../data/disasters";
 import { Alert } from "../../data/alerts";
 import AlertCard from "../../components/suraksha/AlertCard";
@@ -8,14 +9,30 @@ import { fetchEarthquakes } from "../../services/earthquake";
 import { fetchDisasterAlerts } from "../../services/disasters";
 
 export default function AlertsPage() {
-  const demoAlerts = loadAlerts();
+  const convexAlerts = useQuery(api.alerts.list);
   const [liveAlerts, setLiveAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<DisasterType | "All">("All");
 
-  // All alerts: live first, then demo
-  const allAlerts: Alert[] = [...liveAlerts, ...demoAlerts];
+  // Map Convex documents to Alert shape
+  const dbAlerts: Alert[] = (convexAlerts || []).map((a) => ({
+    id: a._id,
+    type: a.type,
+    severity: a.severity,
+    title: a.title,
+    description: a.description,
+    location: a.location,
+    latitude: a.latitude,
+    longitude: a.longitude,
+    createdAt: new Date(a.issuedAt).toISOString(),
+    isLive: a.mode === "live",
+    source: a.source,
+    sourceUrl: a.sourceUrl,
+  }));
+
+  // All alerts: live API + Convex DB
+  const allAlerts: Alert[] = [...liveAlerts, ...dbAlerts];
 
   // Deduplicate by ID
   const seen = new Set<string>();
@@ -31,30 +48,20 @@ export default function AlertsPage() {
       : uniqueAlerts.filter((a) => a.type === selectedType);
 
   const sorted = [...filtered].sort((a, b) => {
-    const order = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+    const order: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
     const aTime = new Date(a.createdAt).getTime();
     const bTime = new Date(b.createdAt).getTime();
     const sevDiff = (order[a.severity] ?? 4) - (order[b.severity] ?? 4);
     if (sevDiff !== 0) return sevDiff;
-    return bTime - aTime; // most recent first
+    return bTime - aTime;
   });
 
   async function refreshLiveData() {
     setLoading(true);
     try {
-      // Fetch USGS earthquakes (worldwide, recent 7 days)
-      const earthquakes = await fetchEarthquakes({
-        minMagnitude: 3.0,
-        limit: 30,
-      });
-
-      // Fetch ReliefWeb disaster alerts
+      const earthquakes = await fetchEarthquakes({ minMagnitude: 3.0, limit: 30 });
       const disasters = await fetchDisasterAlerts();
-
-      // Combine
-      const combined = [...earthquakes, ...disasters];
-
-      setLiveAlerts(combined);
+      setLiveAlerts([...earthquakes, ...disasters]);
       setLastSync(new Date().toLocaleTimeString("en-IN", { timeStyle: "short" }));
     } catch (err) {
       console.error("Failed to refresh live alerts:", err);
@@ -83,7 +90,8 @@ export default function AlertsPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const liveCount = liveAlerts.length;
+  const liveCount = liveAlerts.filter((a) => a.isLive).length;
+  const dbCount = dbAlerts.length;
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -96,11 +104,13 @@ export default function AlertsPage() {
             </h1>
           </div>
           <p className="text-sm text-neutral-500">
-            Real-time disaster alerts from USGS, ReliefWeb (UN OCHA), and weather services — plus platform demo alerts.
+            Real-time disaster alerts from USGS, ReliefWeb (UN OCHA), and weather services — plus platform-managed alerts from the database.
+          </p>
+          <p className="text-[10px] text-neutral-400 mt-1">
+            Database alerts stored in Convex · External data fetched live from APIs
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
-          {/* Status indicator */}
           <div className="text-[10px] text-right">
             {lastSync && (
               <p className="text-neutral-400">Last sync: {lastSync}</p>
@@ -114,12 +124,11 @@ export default function AlertsPage() {
               ) : (
                 <span className="inline-flex items-center gap-1">
                   <WifiOff className="w-3 h-3" />
-                  Demo only
+                  {dbCount > 0 ? "Database alerts" : "No live alerts"}
                 </span>
               )}
             </p>
           </div>
-          {/* Refresh button */}
           <button
             onClick={refreshLiveData}
             disabled={loading}
@@ -163,10 +172,10 @@ export default function AlertsPage() {
         })}
       </div>
 
-      {/* Alert count */}
       <p className="text-xs text-neutral-400 mb-4">
         {sorted.length} alert{sorted.length !== 1 ? "s" : ""} found
         {liveCount > 0 && ` (${liveCount} from live sources)`}
+        {dbCount > 0 && ` (${dbCount} from database)`}
       </p>
 
       {/* Data source legend */}
@@ -175,14 +184,16 @@ export default function AlertsPage() {
           <span className="w-2 h-2 rounded-full bg-green-500" /> LIVE = real-time external API data
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="w-2 h-2 rounded-full bg-neutral-300" /> No badge = demo/simulation data
+          <span className="w-2 h-2 rounded-full bg-blue-500" /> Database = admin-created alerts stored in Convex
         </span>
       </div>
 
       {/* Alerts list */}
       {sorted.length === 0 ? (
         <div className="text-center py-20 text-neutral-400">
-          <p className="text-sm">No alerts for this disaster type.</p>
+          <p className="text-sm">
+            {convexAlerts === undefined ? "Loading alerts…" : "No alerts for this disaster type."}
+          </p>
           <button
             onClick={refreshLiveData}
             className="mt-3 text-xs text-neutral-600 hover:text-neutral-900 font-medium"

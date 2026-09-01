@@ -1,57 +1,74 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { Phone, Plus, Pencil, Trash2, X } from "lucide-react";
-import { isAdminLoggedIn, loadHelplines, saveHelplines } from "../../utils/storage";
-import { Helpline } from "../../data/helplines";
 
-const EMPTY_FORM = { name: "", phone: "" };
+const EMPTY_FORM = { name: "", phone: "", description: "" };
 
 export default function ManageHelplines() {
   const navigate = useNavigate();
-  const [helplines, setHelplines] = useState<Helpline[]>(loadHelplines);
-  const [editing, setEditing] = useState<Helpline | null>(null);
+  const isAdmin = useQuery(api.admin.checkAdmin);
+  const helplines = useQuery(api.helplines.list);
+  const createHelpline = useMutation(api.helplines.create);
+  const updateHelpline = useMutation(api.helplines.update);
+  const deleteHelpline = useMutation(api.helplines.remove);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [editing, setEditing] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
 
   useEffect(() => {
-    if (!isAdminLoggedIn()) {
+    if (isAdmin === false) {
       navigate("/admin/login", { replace: true });
     }
-  }, [navigate]);
+  }, [isAdmin, navigate]);
 
-  function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.phone.trim()) return;
 
-    let updated: Helpline[];
     if (editing) {
-      updated = helplines.map((h) =>
-        h.id === editing.id ? { ...h, name: form.name, phone: form.phone } : h
-      );
+      await updateHelpline({
+        id: editing._id,
+        name: form.name,
+        phone: form.phone,
+        description: form.description || undefined,
+      });
     } else {
-      updated = [
-        ...helplines,
-        { id: `hl-${Date.now()}`, name: form.name, phone: form.phone },
-      ];
+      await createHelpline({
+        name: form.name,
+        phone: form.phone,
+        description: form.description || undefined,
+      });
     }
-    saveHelplines(updated);
-    setHelplines(updated);
     setShowForm(false);
     setEditing(null);
     setForm(EMPTY_FORM);
   }
 
-  function handleDelete(id: string) {
-    const updated = helplines.filter((h) => h.id !== id);
-    saveHelplines(updated);
-    setHelplines(updated);
+  async function handleDelete(id: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await deleteHelpline({ id: id as any });
   }
 
-  function handleEdit(hl: Helpline) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function handleEdit(hl: any) {
     setEditing(hl);
-    setForm({ name: hl.name, phone: hl.phone });
+    setForm({ name: hl.name, phone: hl.phone, description: hl.description || "" });
     setShowForm(true);
   }
+
+  if (isAdmin === undefined || helplines === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-sm text-neutral-400">Loading…</div>
+      </div>
+    );
+  }
+
+  if (isAdmin === false) return null;
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -62,7 +79,7 @@ export default function ManageHelplines() {
             Manage Helplines
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
-            {helplines.length} helplines total
+            {helplines.length} helplines total · Stored in Convex database
           </p>
         </div>
         <button
@@ -87,10 +104,7 @@ export default function ManageHelplines() {
                 {editing ? "Edit Helpline" : "Add Helpline"}
               </h2>
               <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditing(null);
-                }}
+                onClick={() => { setShowForm(false); setEditing(null); }}
                 className="p-1 rounded hover:bg-neutral-100"
               >
                 <X className="w-4 h-4 text-neutral-400" />
@@ -99,9 +113,7 @@ export default function ManageHelplines() {
 
             <form onSubmit={handleSave} className="p-4 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1">
-                  Service Name *
-                </label>
+                <label className="block text-xs font-medium text-neutral-700 mb-1">Service Name *</label>
                 <input
                   type="text"
                   value={form.name}
@@ -112,25 +124,32 @@ export default function ManageHelplines() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-neutral-700 mb-1">
-                  Phone Number *
-                </label>
+                <label className="block text-xs font-medium text-neutral-700 mb-1">Phone Number *</label>
                 <input
                   type="text"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+                  placeholder="e.g. 112 or +91-XXXXXXXXXX"
                   required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-700 mb-1">Description (optional)</label>
+                <input
+                  type="text"
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+                  placeholder="e.g. National Emergency Number"
                 />
               </div>
 
               <div className="flex gap-2 justify-end">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditing(null);
-                  }}
+                  onClick={() => { setShowForm(false); setEditing(null); }}
                   className="px-4 py-2 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
                 >
                   Cancel
@@ -151,26 +170,23 @@ export default function ManageHelplines() {
       <div className="space-y-2">
         {helplines.length === 0 ? (
           <div className="text-center py-20 text-neutral-400">
-            <p className="text-sm">
-              No helplines yet. Add one to get started.
-            </p>
+            <p className="text-sm">No helplines yet. Add one to get started.</p>
           </div>
         ) : (
           helplines.map((hl) => (
             <div
-              key={`hl-${hl.id}`}
+              key={`hl-${hl._id}`}
               className="bg-white border border-neutral-200 rounded-xl p-4 flex items-center gap-4"
             >
               <div className="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center flex-shrink-0">
                 <Phone className="w-5 h-5 text-neutral-500" strokeWidth={1.8} />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-neutral-900">
-                  {hl.name}
-                </p>
-                <p className="text-lg font-semibold text-neutral-700">
-                  {hl.phone}
-                </p>
+                <p className="text-sm font-medium text-neutral-900">{hl.name}</p>
+                <p className="text-lg font-semibold text-neutral-700">{hl.phone}</p>
+                {hl.description && (
+                  <p className="text-xs text-neutral-400 mt-0.5">{hl.description}</p>
+                )}
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <button
@@ -180,7 +196,7 @@ export default function ManageHelplines() {
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  onClick={() => handleDelete(hl.id)}
+                  onClick={() => handleDelete(hl._id)}
                   className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />

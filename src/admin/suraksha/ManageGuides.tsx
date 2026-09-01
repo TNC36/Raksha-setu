@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { BookOpen, Plus, Pencil, Trash2, X } from "lucide-react";
-import { isAdminLoggedIn, loadGuides, saveGuides } from "../../utils/storage";
-import { Guide } from "../../data/guides";
 import { DISASTER_TYPES, DISASTER_META, DisasterType } from "../../data/disasters";
 
 const EMPTY_FORM = {
@@ -15,59 +15,60 @@ const EMPTY_FORM = {
 
 export default function ManageGuides() {
   const navigate = useNavigate();
-  const [guides, setGuides] = useState<Guide[]>(loadGuides);
-  const [editing, setEditing] = useState<Guide | null>(null);
+  const isAdmin = useQuery(api.admin.checkAdmin);
+  const guides = useQuery(api.guides.list);
+  const createGuide = useMutation(api.guides.create);
+  const updateGuide = useMutation(api.guides.update);
+  const deleteGuide = useMutation(api.guides.remove);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [editing, setEditing] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
 
   useEffect(() => {
-    if (!isAdminLoggedIn()) {
+    if (isAdmin === false) {
       navigate("/admin/login", { replace: true });
     }
-  }, [navigate]);
+  }, [isAdmin, navigate]);
 
-  function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title.trim()) return;
 
-    const guide: Guide = {
-      id: editing?.id || `guide-${Date.now()}`,
-      type: form.type,
-      title: form.title,
-      before: form.before
-        .split("\n")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      during: form.during
-        .split("\n")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      after: form.after
-        .split("\n")
-        .map((s) => s.trim())
-        .filter(Boolean),
-    };
+    const before = form.before.split("\n").map((s) => s.trim()).filter(Boolean);
+    const during = form.during.split("\n").map((s) => s.trim()).filter(Boolean);
+    const after = form.after.split("\n").map((s) => s.trim()).filter(Boolean);
 
-    let updated: Guide[];
     if (editing) {
-      updated = guides.map((g) => (g.id === editing.id ? guide : g));
+      await updateGuide({
+        id: editing._id,
+        title: form.title,
+        before,
+        during,
+        after,
+      });
     } else {
-      updated = [...guides, guide];
+      await createGuide({
+        type: form.type as "Flood" | "Earthquake" | "Cyclone" | "Wildfire" | "Landslide" | "Conflict",
+        title: form.title,
+        before,
+        during,
+        after,
+      });
     }
-    saveGuides(updated);
-    setGuides(updated);
     setShowForm(false);
     setEditing(null);
     setForm(EMPTY_FORM);
   }
 
-  function handleDelete(id: string) {
-    const updated = guides.filter((g) => g.id !== id);
-    saveGuides(updated);
-    setGuides(updated);
+  async function handleDelete(id: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await deleteGuide({ id: id as any });
   }
 
-  function handleEdit(guide: Guide) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function handleEdit(guide: any) {
     setEditing(guide);
     setForm({
       type: guide.type,
@@ -79,6 +80,16 @@ export default function ManageGuides() {
     setShowForm(true);
   }
 
+  if (isAdmin === undefined || guides === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-sm text-neutral-400">Loading…</div>
+      </div>
+    );
+  }
+
+  if (isAdmin === false) return null;
+
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex items-center justify-between mb-8">
@@ -88,7 +99,7 @@ export default function ManageGuides() {
             Manage Guides
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
-            {guides.length} guides total
+            {guides.length} guides total · Stored in Convex database
           </p>
         </div>
         <button
@@ -113,10 +124,7 @@ export default function ManageGuides() {
                 {editing ? "Edit Guide" : "Add Guide"}
               </h2>
               <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditing(null);
-                }}
+                onClick={() => { setShowForm(false); setEditing(null); }}
                 className="p-1 rounded hover:bg-neutral-100"
               >
                 <X className="w-4 h-4 text-neutral-400" />
@@ -126,33 +134,24 @@ export default function ManageGuides() {
             <form onSubmit={handleSave} className="p-4 space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-neutral-700 mb-1">
-                    Disaster Type
-                  </label>
+                  <label className="block text-xs font-medium text-neutral-700 mb-1">Disaster Type</label>
                   <select
                     value={form.type}
-                    onChange={(e) =>
-                      setForm({ ...form, type: e.target.value as DisasterType })
-                    }
+                    onChange={(e) => setForm({ ...form, type: e.target.value as DisasterType })}
                     className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+                    disabled={!!editing}
                   >
                     {DISASTER_TYPES.map((dt) => (
-                      <option key={dt} value={dt}>
-                        {DISASTER_META[dt].icon} {dt}
-                      </option>
+                      <option key={dt} value={dt}>{DISASTER_META[dt].icon} {dt}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-neutral-700 mb-1">
-                    Guide Title *
-                  </label>
+                  <label className="block text-xs font-medium text-neutral-700 mb-1">Guide Title *</label>
                   <input
                     type="text"
                     value={form.title}
-                    onChange={(e) =>
-                      setForm({ ...form, title: e.target.value })
-                    }
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
                     className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
                     required
                   />
@@ -166,9 +165,7 @@ export default function ManageGuides() {
                   </label>
                   <textarea
                     value={form[phase]}
-                    onChange={(e) =>
-                      setForm({ ...form, [phase]: e.target.value })
-                    }
+                    onChange={(e) => setForm({ ...form, [phase]: e.target.value })}
                     rows={4}
                     className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10 resize-none"
                     placeholder={`Enter ${phase} instructions, one per line`}
@@ -179,10 +176,7 @@ export default function ManageGuides() {
               <div className="flex gap-2 justify-end">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditing(null);
-                  }}
+                  onClick={() => { setShowForm(false); setEditing(null); }}
                   className="px-4 py-2 text-xs font-medium text-neutral-600 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
                 >
                   Cancel
@@ -207,10 +201,10 @@ export default function ManageGuides() {
           </div>
         ) : (
           guides.map((guide) => {
-            const meta = DISASTER_META[guide.type];
+            const meta = DISASTER_META[guide.type as DisasterType] || DISASTER_META.Flood;
             return (
               <div
-                key={`guide-${guide.id}`}
+                key={`guide-${guide._id}`}
                 className="bg-white border border-neutral-200 rounded-xl p-4 flex items-start gap-4"
               >
                 <div className="flex-1">
@@ -222,9 +216,7 @@ export default function ManageGuides() {
                       {meta.icon} {guide.type}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-neutral-900">
-                    {guide.title}
-                  </p>
+                  <p className="text-sm font-medium text-neutral-900">{guide.title}</p>
                   <p className="text-xs text-neutral-500 mt-0.5">
                     {(guide.before || []).length} before ·{" "}
                     {(guide.during || []).length} during ·{" "}
@@ -239,7 +231,7 @@ export default function ManageGuides() {
                     <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(guide.id)}
+                    onClick={() => handleDelete(guide._id)}
                     className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

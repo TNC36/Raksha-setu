@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import {
   AlertTriangle,
   MapPin,
@@ -14,11 +16,8 @@ import type { LucideIcon } from "lucide-react";
 import {
   getCurrentUser,
   logoutUser,
-  loadAlerts,
-  loadZones,
-  loadGuides,
 } from "../../utils/storage";
-import { DISASTER_META } from "../../data/disasters";
+import { DISASTER_TYPES, DISASTER_META } from "../../data/disasters";
 import { formatDistance, findNearest } from "../../utils/distance";
 import { openGoogleMapsNavigation } from "../../utils/routing";
 import AlertCard from "../../components/suraksha/AlertCard";
@@ -26,6 +25,12 @@ import AlertCard from "../../components/suraksha/AlertCard";
 export default function Dashboard() {
   const navigate = useNavigate();
   const user = getCurrentUser();
+
+  // Convex reactive queries — auto-update when database changes
+  const alertsData = useQuery(api.alerts.list);
+  const zonesData = useQuery(api.safeZones.listActive);
+  const guidesData = useQuery(api.guides.list);
+
   const [locationDetected, setLocationDetected] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [userLoc, setUserLoc] = useState<{
@@ -38,9 +43,39 @@ export default function Dashboard() {
     return null;
   }
 
-  const alerts = loadAlerts();
-  const zones = loadZones();
-  const guides = loadGuides();
+  // Map Convex documents to the shapes expected by existing components
+  const alerts = (alertsData || []).map((a) => ({
+    id: a._id,
+    type: a.type,
+    severity: a.severity,
+    title: a.title,
+    description: a.description,
+    location: a.location,
+    latitude: a.latitude,
+    longitude: a.longitude,
+    createdAt: new Date(a.issuedAt).toISOString(),
+    isLive: a.mode === "live",
+    source: a.source,
+  }));
+
+  const zones = (zonesData || []).map((z) => ({
+    id: z._id,
+    name: z.name,
+    type: z.type,
+    location: z.location,
+    latitude: z.latitude,
+    longitude: z.longitude,
+    capacity: z.capacity,
+    disasterTypes: z.disasterTypes,
+    status: z.status,
+    verified: z.verified,
+  }));
+
+  const guides = (guidesData || []).map((g) => ({
+    id: g._id,
+    type: g.type,
+    title: g.title,
+  }));
 
   const criticalAlerts = alerts.filter(
     (a) => a.severity === "Critical" || a.severity === "High"
@@ -49,20 +84,18 @@ export default function Dashboard() {
 
   // Find nearest safe zone for each disaster type
   const nearestPerDisaster = userLoc
-    ? (["Flood", "Earthquake", "Cyclone", "Wildfire", "Landslide", "Conflict"] as const).map(
-        (dt) => {
-          const meta = DISASTER_META[dt];
-          const relevant = availableZones.filter((z) =>
-            z.disasterTypes.includes(dt)
-          );
-          const withDist = findNearest(
-            relevant,
-            userLoc.latitude,
-            userLoc.longitude
-          );
-          return { type: dt, meta, zone: withDist[0] || null };
-        }
-      )
+    ? DISASTER_TYPES.map((dt) => {
+        const meta = DISASTER_META[dt];
+        const relevant = availableZones.filter((z) =>
+          z.disasterTypes.includes(dt)
+        );
+        const withDist = findNearest(
+          relevant,
+          userLoc.latitude,
+          userLoc.longitude
+        );
+        return { type: dt, meta, zone: withDist[0] || null };
+      })
     : [];
 
   function detectLocation() {
@@ -125,6 +158,9 @@ export default function Dashboard() {
           </div>
           <p className="text-sm text-neutral-500">
             {greeting}, {user.name}. Here is your emergency overview.
+          </p>
+          <p className="text-[10px] text-neutral-400 mt-1">
+            Data synced from Convex database · Last updated: {new Date().toLocaleTimeString("en-IN", { timeStyle: "short" })}
           </p>
         </div>
         <button

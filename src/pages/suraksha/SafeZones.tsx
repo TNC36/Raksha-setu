@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import {
   MapPin,
   Navigation,
@@ -14,7 +16,6 @@ import {
   DISASTER_META,
   DisasterType,
 } from "../../data/disasters";
-import { loadZones, loadAlerts, loadGuides } from "../../utils/storage";
 import { DEFAULT_FACILITIES } from "../../data/facilities";
 import { DEFAULT_REPORTS } from "../../data/reports";
 import { formatDistance, findNearest } from "../../utils/distance";
@@ -62,9 +63,39 @@ export default function SafeZones() {
   // Keep a ref to abort in-flight route requests
   const routeAbortRef = useRef<AbortController | null>(null);
 
-  const demoZones = loadZones();
-  const demoAlerts = loadAlerts();
-  const demoGuides = loadGuides();
+  // Convex reactive queries for database-stored data
+  const convexZones = useQuery(api.safeZones.listActive);
+  const convexAlerts = useQuery(api.alerts.list);
+  const convexGuides = useQuery(api.guides.list);
+
+  // Map Convex documents to the shapes expected by existing components
+  const demoZones: SafeZone[] = (convexZones || []).map((z) => ({
+    id: z._id,
+    name: z.name,
+    type: z.type,
+    location: z.location,
+    latitude: z.latitude,
+    longitude: z.longitude,
+    capacity: z.capacity,
+    disasterTypes: z.disasterTypes as DisasterType[],
+    status: z.status,
+    verified: z.verified,
+  }));
+
+  const demoAlerts: Alert[] = (convexAlerts || []).map((a) => ({
+    id: a._id,
+    type: a.type,
+    severity: a.severity,
+    title: a.title,
+    description: a.description,
+    location: a.location,
+    latitude: a.latitude,
+    longitude: a.longitude,
+    createdAt: new Date(a.issuedAt).toISOString(),
+    isLive: a.mode === "live",
+    source: a.source,
+    sourceUrl: a.sourceUrl,
+  }));
 
   const meta = DISASTER_META[disaster];
 
@@ -81,7 +112,6 @@ export default function SafeZones() {
   const filteredAlerts = allAlerts.filter(
     (a) => a.type === disaster || (a.isLive && a.source?.includes("USGS"))
   );
-  const filteredGuides = demoGuides.filter((g) => g.type === disaster);
 
   // Nearest zone with distance
   const zonesWithDistance = userLocation
@@ -146,8 +176,6 @@ export default function SafeZones() {
     return () => controller.abort();
   }, [userLocation?.latitude, userLocation?.longitude]);
 
-  // Clear route when zone or location changes (handled in handlers + initial state)
-
   // Fetch OSRM route when user selects a zone
   useEffect(() => {
     if (!userLocation || !selectedZone) return;
@@ -195,6 +223,7 @@ export default function SafeZones() {
     setSelectedZone(null);
     setRealRoute(null);
     setRouteResult(null);
+    setHazardCheck(null);
     setSearchParams({ disaster: dt });
   }
 
@@ -463,7 +492,9 @@ export default function SafeZones() {
           {zonesWithDistance.length === 0 ? (
             <div className="text-center py-12 bg-neutral-50 rounded-xl border border-neutral-200">
               <p className="text-sm text-neutral-400">
-                No safe zones available for {disaster}.
+                {convexZones === undefined
+                  ? "Loading safe zones from database…"
+                  : `No safe zones available for ${disaster}.`}
               </p>
             </div>
           ) : (
@@ -603,12 +634,7 @@ export default function SafeZones() {
                         {fac.name}
                       </p>
                       <p className="text-[10px] text-neutral-400">
-                        {fac.type === "Hospital"
-                          ? "Hospital"
-                          : fac.type === "Police"
-                          ? "Police Station"
-                          : "Fire Station"}{" "}
-                        · {fac.latitude.toFixed(4)}, {fac.longitude.toFixed(4)}
+                        {fac.type} · {fac.latitude.toFixed(4)}, {fac.longitude.toFixed(4)}
                       </p>
                     </div>
                     {userLocation && (
@@ -657,23 +683,27 @@ export default function SafeZones() {
           </div>
 
           {/* Quick guide */}
-          {filteredGuides.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-neutral-900 mb-3">
-                {meta.icon} Safety Tips
-              </h3>
-              <div className="bg-white border border-neutral-200 rounded-lg p-3">
-                <p className="text-xs font-medium text-neutral-900 mb-2">
-                  {filteredGuides[0].title}
-                </p>
-                {filteredGuides[0].during?.slice(0, 2).map((tip, i) => (
-                  <p key={`tip-${i}`} className="text-[11px] text-neutral-500 leading-relaxed">
-                    • {tip}
+          {convexGuides && (() => {
+            const guides = convexGuides.filter((g) => g.type === disaster);
+            if (guides.length === 0) return null;
+            return (
+              <div>
+                <h3 className="text-sm font-semibold text-neutral-900 mb-3">
+                  {meta.icon} Safety Tips
+                </h3>
+                <div className="bg-white border border-neutral-200 rounded-lg p-3">
+                  <p className="text-xs font-medium text-neutral-900 mb-2">
+                    {guides[0].title}
                   </p>
-                ))}
+                  {(guides[0].during || []).slice(0, 2).map((tip: string, i: number) => (
+                    <p key={`tip-${i}`} className="text-[11px] text-neutral-500 leading-relaxed">
+                      • {tip}
+                    </p>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
 
@@ -682,7 +712,7 @@ export default function SafeZones() {
         <p className="text-[11px] text-neutral-400 leading-relaxed max-w-2xl mx-auto">
           Live facility data sourced from OpenStreetMap (Overpass API). Earthquake data from USGS Earthquake Hazards Program.
           Weather alerts from Open-Meteo. Road-network routing via OSRM (Open Source Routing Machine).
-          Safe zones and community reports use demonstration data — replace with verified government data for production.
+          Safe zones and community reports stored in Convex database — replace with verified government data for production.
         </p>
       </div>
     </div>

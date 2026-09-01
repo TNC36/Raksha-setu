@@ -1,12 +1,23 @@
 import { useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { BookOpen } from "lucide-react";
-import { loadGuides } from "../../utils/storage";
 import { DISASTER_TYPES, DISASTER_META, DisasterType } from "../../data/disasters";
 import GuideCard from "../../components/suraksha/GuideCard";
 
 export default function GuidesPage() {
-  const guides = loadGuides();
+  const guidesData = useQuery(api.guides.list);
   const [selectedType, setSelectedType] = useState<DisasterType | "All">("All");
+
+  // Map Convex documents to the Guide shape expected by GuideCard
+  const guides = (guidesData || []).map((g) => ({
+    id: g._id,
+    type: g.type,
+    title: g.title,
+    before: g.before,
+    during: g.during,
+    after: g.after,
+  }));
 
   const filtered =
     selectedType === "All"
@@ -59,11 +70,16 @@ export default function GuidesPage() {
 
       <p className="text-xs text-neutral-400 mb-4">
         {filtered.length} guide{filtered.length !== 1 ? "s" : ""} found
+        {guidesData === undefined && " · Loading…"}
       </p>
 
       {filtered.length === 0 ? (
         <div className="text-center py-20 text-neutral-400">
-          <p className="text-sm">No guides for this disaster type.</p>
+          <p className="text-sm">
+            {guidesData === undefined
+              ? "Loading guides from database…"
+              : "No guides for this disaster type."}
+          </p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
