@@ -13,7 +13,7 @@ export default function GuidesPage() {
 
   // Map Convex documents to the Guide shape expected by GuideCard
   const guides = (guidesData || []).map((g) => ({
-    _id: g._id,
+    id: g._id,
     type: g.type,
     title: g.title,
     before: g.before,
@@ -86,7 +86,7 @@ export default function GuidesPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((guide) => (
-            <GuideCard key={`guide-${guide._id}`} guide={guide} />
+            <GuideCard key={`guide-${guide.id}`} guide={guide} />
           ))}
         </div>
       )}

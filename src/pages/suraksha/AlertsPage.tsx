@@ -3,7 +3,8 @@ import { useQuery } from "convex/react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { DISASTER_TYPES, DISASTER_META, DisasterType } from "../../data/disasters";
-import AlertCard, { ConvexAlert } from "../../components/suraksha/AlertCard";
+import { Alert } from "../../data/alerts";
+import AlertCard from "../../components/suraksha/AlertCard";
 import { AlertTriangle, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import { fetchEarthquakes } from "../../services/earthquake";
 import { fetchDisasterAlerts } from "../../services/disasters";
@@ -11,13 +12,13 @@ import { fetchDisasterAlerts } from "../../services/disasters";
 export default function AlertsPage() {
   const { t } = useTranslation();
   const convexAlerts = useQuery(api.alerts.list);
-  const [liveAlerts, setLiveAlerts] = useState<ConvexAlert[]>([]);
+  const [liveAlerts, setLiveAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<DisasterType | "All">("All");
 
-  const dbAlerts: ConvexAlert[] = (convexAlerts || []).map((a) => ({
-    _id: a._id,
+  const dbAlerts: Alert[] = (convexAlerts || []).map((a) => ({
+    id: a._id,
     type: a.type,
     severity: a.severity,
     title: a.title,
@@ -25,21 +26,18 @@ export default function AlertsPage() {
     location: a.location,
     latitude: a.latitude,
     longitude: a.longitude,
-    issuedAt: a.issuedAt,
-    updatedAt: a.updatedAt,
-    mode: a.mode,
+    createdAt: new Date(a.issuedAt).toISOString(),
+    isLive: a.mode === "live",
     source: a.source,
     sourceUrl: a.sourceUrl,
-    verified: a.verified,
-    status: a.status,
   }));
 
-  const allAlerts: ConvexAlert[] = [...liveAlerts as ConvexAlert[], ...dbAlerts];
+  const allAlerts: Alert[] = [...liveAlerts, ...dbAlerts];
 
   const seen = new Set<string>();
   const uniqueAlerts = allAlerts.filter((a) => {
-    if (seen.has(a._id)) return false;
-    seen.add(a._id);
+    if (seen.has(a.id)) return false;
+    seen.add(a.id);
     return true;
   });
 
@@ -90,7 +88,7 @@ export default function AlertsPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const liveCount = liveAlerts.filter((a) => a.mode === "live").length;
+  const liveCount = liveAlerts.filter((a) => a.isLive).length;
   const dbCount = dbAlerts.length;
 
   return (
@@ -192,7 +190,7 @@ export default function AlertsPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {sorted.map((alert) => (
-            <AlertCard key={`alert-${alert._id}`} alert={alert} />
+            <AlertCard key={`alert-${alert.id}`} alert={alert} />
           ))}
         </div>
       )}

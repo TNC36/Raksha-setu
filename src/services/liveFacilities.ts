@@ -5,7 +5,7 @@
  * No API key required.
  */
 
-import { Facility, FacilityType } from "../types/services";
+import { Facility, FacilityType } from "../data/facilities";
 
 const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
 

@@ -4,7 +4,7 @@
  * No API key required.
  */
 
-import { Alert, AlertSeverity } from "../types/services";
+import { Alert, AlertSeverity } from "../data/alerts";
 
 const USGS_BASE = "https://earthquake.usgs.gov/fdsnws/event/1/query";
 

@@ -4,7 +4,7 @@
  * No API key required.
  */
 
-import { Alert, AlertSeverity } from "../types/services";
+import { Alert, AlertSeverity } from "../data/alerts";
 
 const RELIEFWEB_BASE = "https://api.reliefweb.int/v1/disasters";
 

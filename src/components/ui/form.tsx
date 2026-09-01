@@ -1,5 +1,4 @@
 "use client"
-// @ts-nocheck
 
 import * as React from "react"
 import type * as LabelPrimitive from "@radix-ui/react-label"

@@ -17,7 +17,8 @@ import {
   DISASTER_META,
   DisasterType,
 } from "../../data/disasters";
-
+import { DEFAULT_FACILITIES } from "../../data/facilities";
+import { DEFAULT_REPORTS } from "../../data/reports";
 import { formatDistance, findNearest } from "../../utils/distance";
 import { openGoogleMapsNavigation } from "../../utils/routing";
 import { fetchRoute, RouteResult } from "../../services/liveRouting";
@@ -25,7 +26,10 @@ import { checkRouteHazards, HazardZone, HazardCheckResult } from "../../services
 import { fetchNearbyFacilities } from "../../services/liveFacilities";
 import { fetchEarthquakes } from "../../services/earthquake";
 import { fetchWeatherAlerts } from "../../services/weather";
-import MapView, { SafeZone, Alert, Facility } from "../../components/suraksha/MapView";
+import MapView from "../../components/suraksha/MapView";
+import { SafeZone } from "../../data/zones";
+import { Alert } from "../../data/alerts";
+import { Facility } from "../../data/facilities";
 
 export default function SafeZones() {
   const { t } = useTranslation();
@@ -68,7 +72,7 @@ export default function SafeZones() {
 
   // Map Convex documents to the shapes expected by existing components
   const demoZones: SafeZone[] = (convexZones || []).map((z) => ({
-    _id: z._id,
+    id: z._id,
     name: z.name,
     type: z.type,
     location: z.location,
@@ -78,11 +82,10 @@ export default function SafeZones() {
     disasterTypes: z.disasterTypes as DisasterType[],
     status: z.status,
     verified: z.verified,
-    mode: z.mode,
   }));
 
   const demoAlerts: Alert[] = (convexAlerts || []).map((a) => ({
-    _id: a._id,
+    id: a._id,
     type: a.type,
     severity: a.severity,
     title: a.title,
@@ -90,19 +93,16 @@ export default function SafeZones() {
     location: a.location,
     latitude: a.latitude,
     longitude: a.longitude,
-    issuedAt: a.issuedAt,
-    updatedAt: a.updatedAt,
-    mode: a.mode,
+    createdAt: new Date(a.issuedAt).toISOString(),
+    isLive: a.mode === "live",
     source: a.source,
     sourceUrl: a.sourceUrl,
-    verified: a.verified,
-    status: a.status,
   }));
 
   const meta = DISASTER_META[disaster];
 
   // Merge demo + live facilities
-  const allFacilities = [...liveFacilities];
+  const allFacilities = [...liveFacilities, ...DEFAULT_FACILITIES];
 
   // Merge demo + live alerts
   const allAlerts = [...liveAlerts, ...demoAlerts];
@@ -112,7 +112,7 @@ export default function SafeZones() {
   );
 
   const filteredAlerts = allAlerts.filter(
-    (a) => a.type === disaster || (a.mode === "live" && a.source?.includes("USGS"))
+    (a) => a.type === disaster || (a.isLive && a.source?.includes("USGS"))
   );
 
   // Nearest zone with distance
@@ -218,7 +218,7 @@ export default function SafeZones() {
     getRoute();
 
     return () => controller.abort();
-  }, [userLocation?.latitude, userLocation?.longitude, selectedZone?._id]);
+  }, [userLocation?.latitude, userLocation?.longitude, selectedZone?.id]);
 
   function handleDisasterChange(dt: DisasterType) {
     setDisaster(dt);
@@ -460,7 +460,7 @@ export default function SafeZones() {
           disaster={disaster}
           zones={demoZones}
           alerts={allAlerts}
-          reports={[]}
+          reports={DEFAULT_REPORTS}
           facilities={allFacilities}
           userLocation={
             userLocation
@@ -501,9 +501,9 @@ export default function SafeZones() {
             <div className="space-y-3">
               {zonesWithDistance.map((zone) => (
                 <div
-                  key={`zone-${zone._id}`}
+                  key={`zone-${zone.id}`}
                   className={`bg-white border rounded-xl p-4 transition-colors cursor-pointer ${
-                    selectedZone?._id === zone._id
+                    selectedZone?.id === zone.id
                       ? "border-neutral-900"
                       : "border-neutral-200 hover:border-neutral-300"
                   }`}
@@ -582,14 +582,14 @@ export default function SafeZones() {
               <div className="space-y-2">
                 {filteredAlerts.slice(0, 5).map((alert) => (
                   <div
-                    key={`alert-${alert._id}`}
+                    key={`alert-${alert.id}`}
                     className="bg-white border border-neutral-200 rounded-lg p-3"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <p className="text-xs font-medium text-neutral-900 flex-1">
                         {alert.title}
                       </p>
-                      {alert.mode === "live" && (
+                      {alert.isLive && (
                         <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium bg-green-50 text-green-600 border border-green-200">
                           <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
                           LIVE
@@ -619,7 +619,7 @@ export default function SafeZones() {
               <div className="space-y-2">
                 {liveFacilities.slice(0, 6).map((fac) => (
                   <div
-                    key={`live-fac-${fac._id}`}
+                    key={`live-fac-${fac.id}`}
                     className="bg-white border border-neutral-200 rounded-lg p-3 flex items-center gap-3"
                   >
                     <span className="text-sm">
@@ -661,13 +661,14 @@ export default function SafeZones() {
             <p className="text-[10px] text-neutral-400 mb-2 italic">
               Demo reports — for demonstration purposes only
             </p>
-            {false ? (
+            {DEFAULT_REPORTS.filter((r) => r.disaster === disaster).length ===
+            0 ? (
               <p className="text-xs text-neutral-400">
                 No reports for this disaster.
               </p>
             ) : (
               <div className="space-y-2">
-                {[].map(
+                {DEFAULT_REPORTS.filter((r) => r.disaster === disaster).map(
                   (rpt) => (
                     <div
                       key={`rpt-${rpt.id}`}
