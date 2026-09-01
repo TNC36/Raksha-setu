@@ -6,7 +6,7 @@
  * Used to generate weather-based disaster alerts (heavy rain, extreme heat, storms).
  */
 
-import { Alert } from "../data/alerts";
+import { Alert } from "../types/services";
 
 const OPEN_METEO_BASE = "https://api.open-meteo.com/v1/forecast";
 

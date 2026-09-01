@@ -3,8 +3,6 @@ import { ThemeProvider } from "./components/suraksha/ThemeProvider";
 import Header from "./components/suraksha/Header";
 import Footer from "./components/suraksha/Footer";
 import Home from "./pages/suraksha/Home";
-import Login from "./pages/suraksha/Login";
-import Register from "./pages/suraksha/Register";
 import AlertsPage from "./pages/suraksha/AlertsPage";
 import SafeZones from "./pages/suraksha/SafeZones";
 import GuidesPage from "./pages/suraksha/GuidesPage";
@@ -32,9 +30,7 @@ export default function App() {
             <Route path="/guides" element={<GuidesPage />} />
             <Route path="/helplines" element={<HelplinesPage />} />
 
-            {/* Civilian auth & dashboard */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            {/* Civilian dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
 
             {/* Admin routes */}

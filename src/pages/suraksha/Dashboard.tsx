@@ -13,10 +13,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import {
-  getCurrentUser,
-  logoutUser,
-} from "../../utils/storage";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth } from "convex/react";
 import { DISASTER_TYPES, DISASTER_META } from "../../data/disasters";
 import { formatDistance, findNearest } from "../../utils/distance";
 import { openGoogleMapsNavigation } from "../../utils/routing";
@@ -24,7 +22,13 @@ import AlertCard from "../../components/suraksha/AlertCard";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { signOut } = useAuthActions();
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
+  const currentUser = useQuery(
+    api.users.currentUser,
+    isAuthenticated ? {} : "skip"
+  );
+  const user = currentUser;
 
   // Convex reactive queries — auto-update when database changes
   const alertsData = useQuery(api.alerts.list);
@@ -45,7 +49,7 @@ export default function Dashboard() {
 
   // Map Convex documents to the shapes expected by existing components
   const alerts = (alertsData || []).map((a) => ({
-    id: a._id,
+    _id: a._id,
     type: a.type,
     severity: a.severity,
     title: a.title,
@@ -53,9 +57,13 @@ export default function Dashboard() {
     location: a.location,
     latitude: a.latitude,
     longitude: a.longitude,
-    createdAt: new Date(a.issuedAt).toISOString(),
-    isLive: a.mode === "live",
+    issuedAt: a.issuedAt,
+    updatedAt: a.updatedAt,
+    mode: a.mode,
     source: a.source,
+    sourceUrl: a.sourceUrl,
+    verified: a.verified,
+    status: a.status,
   }));
 
   const zones = (zonesData || []).map((z) => ({
@@ -132,8 +140,12 @@ export default function Dashboard() {
     );
   }
 
-  function handleLogout() {
-    logoutUser();
+  async function handleLogout() {
+    try {
+      await signOut();
+    } catch (err) {
+      console.error("Sign out error:", err);
+    }
     navigate("/", { replace: true });
   }
 
@@ -225,7 +237,7 @@ export default function Dashboard() {
           </div>
           <div className="grid sm:grid-cols-2 gap-3">
             {criticalAlerts.slice(0, 4).map((alert) => (
-              <AlertCard key={`alert-${alert.id}`} alert={alert} />
+              <AlertCard key={`alert-${alert._id}`} alert={alert} />
             ))}
           </div>
         </section>
@@ -360,7 +372,7 @@ export default function Dashboard() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {alerts.slice(0, 3).map((alert) => (
-            <AlertCard key={`dash-alert-${alert.id}`} alert={alert} compact />
+            <AlertCard key={`dash-alert-${alert._id}`} alert={alert} compact />
           ))}
         </div>
       </section>

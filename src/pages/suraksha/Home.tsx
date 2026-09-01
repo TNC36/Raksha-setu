@@ -1,10 +1,8 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { AlertTriangle, MapPin, BookOpen, Phone, ArrowRight, Shield } from "lucide-react";
-import { loadAlerts } from "../../utils/storage";
-import { loadZones } from "../../utils/storage";
-import { loadGuides } from "../../utils/storage";
-import { loadHelplines } from "../../utils/storage";
 import { DISASTER_TYPES, DISASTER_META } from "../../data/disasters";
 import AlertCard from "../../components/suraksha/AlertCard";
 import GuideCard from "../../components/suraksha/GuideCard";
@@ -12,10 +10,10 @@ import StatCard from "../../components/suraksha/StatCard";
 
 export default function Home() {
   const { t } = useTranslation();
-  const alerts = loadAlerts();
-  const zones = loadZones();
-  const guides = loadGuides();
-  const helplines = loadHelplines();
+  const alerts = useQuery(api.alerts.list) ?? [];
+  const zones = useQuery(api.safeZones.listActive) ?? [];
+  const guides = useQuery(api.guides.list) ?? [];
+  const helplines = useQuery(api.helplines.list) ?? [];
 
   const activeAlerts = alerts.length;
   const criticalAlerts = alerts.filter(
@@ -160,7 +158,7 @@ export default function Home() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {alerts.slice(0, 3).map((alert) => (
-            <AlertCard key={alert.id} alert={alert} compact />
+            <AlertCard key={alert._id} alert={alert} compact />
           ))}
         </div>
       </section>
@@ -185,7 +183,7 @@ export default function Home() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {guides.slice(0, 3).map((guide) => (
-            <GuideCard key={guide.id} guide={guide} />
+            <GuideCard key={guide._id} guide={guide} />
           ))}
         </div>
       </section>

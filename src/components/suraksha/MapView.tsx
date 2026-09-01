@@ -10,12 +10,67 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { SafeZone } from "../../data/zones";
-import { Alert } from "../../data/alerts";
-import { CommunityReport } from "../../data/reports";
-import { Facility } from "../../data/facilities";
 import { DisasterType, DISASTER_META } from "../../data/disasters";
 import { RoutePoint } from "../../utils/routing";
+
+type AlertSeverity = "Low" | "Medium" | "High" | "Critical";
+type DataMode = "live" | "demo";
+type ZoneStatus = "Available" | "Limited" | "Full" | "Closed";
+type ReportStatus = "pending" | "verified" | "rejected" | "resolved";
+
+export interface SafeZone {
+  _id: string;
+  name: string;
+  type: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  capacity: number;
+  availableCapacity?: number;
+  disasterTypes: DisasterType[];
+  status: ZoneStatus;
+  verified: boolean;
+  mode: DataMode;
+}
+
+export interface Alert {
+  _id: string;
+  type: DisasterType;
+  severity: AlertSeverity;
+  title: string;
+  description: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  source: string;
+  sourceUrl?: string;
+  issuedAt: number;
+  updatedAt: number;
+  mode: DataMode;
+  verified: boolean;
+  status: string;
+}
+
+export interface CommunityReport {
+  _id: string;
+  type: string;
+  description: string;
+  latitude: number;
+  longitude: number;
+  status: ReportStatus;
+  createdAt: number;
+}
+
+export interface Facility {
+  _id: string;
+  type: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  phone?: string;
+  source: string;
+  mode: DataMode;
+}
 
 // Fix Leaflet default icon paths for bundled builds
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -161,7 +216,7 @@ export default function MapView({
     (z) => z.disasterTypes.includes(disaster) && z.status !== "Closed"
   );
   const filteredAlerts = alerts.filter((a) => a.type === disaster);
-  const filteredReports = reports.filter((r) => r.disaster === disaster);
+  const filteredReports = reports.filter((r) => r.type === disaster);
 
   const hospitals = facilities.filter((f) => f.type === "Hospital");
   const policeStations = facilities.filter((f) => f.type === "Police");
@@ -209,7 +264,7 @@ export default function MapView({
         {layers.safeZones &&
           filteredZones.map((zone) => (
             <Marker
-              key={`zone-${zone.id}`}
+              key={`zone-${zone._id}`}
               position={[zone.latitude, zone.longitude]}
               icon={createIcon(meta.color, zone.name)}
             >
@@ -260,7 +315,7 @@ export default function MapView({
         {layers.hospitals &&
           hospitals.map((f) => (
             <Marker
-              key={`hosp-${f.id}`}
+              key={`hosp-${f._id}`}
               position={[f.latitude, f.longitude]}
               icon={createIcon("#ef4444", f.name)}
             >
@@ -278,7 +333,7 @@ export default function MapView({
         {layers.police &&
           policeStations.map((f) => (
             <Marker
-              key={`police-${f.id}`}
+              key={`police-${f._id}`}
               position={[f.latitude, f.longitude]}
               icon={createIcon("#2563eb", f.name)}
             >
@@ -296,7 +351,7 @@ export default function MapView({
         {layers.fireStations &&
           fireStations.map((f) => (
             <Marker
-              key={`fire-${f.id}`}
+              key={`fire-${f._id}`}
               position={[f.latitude, f.longitude]}
               icon={createIcon("#f97316", f.name)}
             >
@@ -314,7 +369,7 @@ export default function MapView({
         {layers.alerts &&
           filteredAlerts.map((a) => (
             <Marker
-              key={`alert-${a.id}`}
+              key={`alert-${a._id}`}
               position={[a.latitude, a.longitude]}
               icon={createIcon(
                 a.severity === "Critical"
@@ -341,15 +396,15 @@ export default function MapView({
         {layers.reports &&
           filteredReports.map((r) => (
             <Marker
-              key={`rpt-${r.id}`}
+              key={`rpt-${r._id}`}
               position={[r.latitude, r.longitude]}
-              icon={createIcon("#a855f7", r.title)}
+              icon={createIcon("#a855f7", r.type)}
             >
               <Popup>
                 <div className="text-xs">
                   📢 <strong>Community Report</strong>
                   <br />
-                  {r.title}
+                  {r.description}
                   <br />
                   <em className="text-neutral-400">Demo report</em>
                 </div>
