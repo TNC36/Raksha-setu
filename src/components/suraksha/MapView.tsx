@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -16,8 +16,6 @@ import { CommunityReport } from "../../data/reports";
 import { Facility } from "../../data/facilities";
 import { DisasterType, DISASTER_META } from "../../data/disasters";
 import { RoutePoint } from "../../utils/routing";
-import { Navigation, Crosshair } from "lucide-react";
-import { formatDistance } from "../../utils/distance";
 
 // Fix Leaflet default icon paths for bundled builds
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -80,7 +78,7 @@ interface MapViewProps {
   layers?: LayerToggles;
 }
 
-function useMapLayers(disaster: DisasterType, initial?: Partial<LayerToggles>): LayerToggles {
+function useMapLayers(_disaster: DisasterType, initial?: Partial<LayerToggles>): [LayerToggles, (key: keyof LayerToggles) => void] {
   const [layers, setLayers] = useState<LayerToggles>({
     safeZones: true,
     dangerZones: true,
@@ -97,7 +95,7 @@ function useMapLayers(disaster: DisasterType, initial?: Partial<LayerToggles>): 
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  return layers;
+  return [layers, toggle];
 }
 
 // Danger zone data per disaster type (demo)
@@ -149,7 +147,7 @@ export default function MapView({
   selectedZone,
   routePoints,
 }: MapViewProps) {
-  const layers = useMapLayers(disaster);
+  const [layers, toggleLayer] = useMapLayers(disaster);
   const meta = DISASTER_META[disaster];
 
   const filteredZones = zones.filter(
@@ -367,7 +365,7 @@ export default function MapView({
       </MapContainer>
 
       {/* Layer toggles */}
-      <LayerPanel layers={layers} disaster={disaster} />
+      <LayerPanel layers={layers} disaster={disaster} onToggle={toggleLayer} />
     </div>
   );
 }
@@ -375,9 +373,11 @@ export default function MapView({
 function LayerPanel({
   layers,
   disaster,
+  onToggle,
 }: {
   layers: LayerToggles;
   disaster: DisasterType;
+  onToggle: (key: keyof LayerToggles) => void;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -410,9 +410,7 @@ function LayerPanel({
               <input
                 type="checkbox"
                 checked={layers[t.key]}
-                onChange={() => {
-                  // Toggle handled by parent
-                }}
+                onChange={() => onToggle(t.key)}
                 className="w-3 h-3 accent-neutral-900"
               />
               <span

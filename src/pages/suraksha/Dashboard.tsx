@@ -6,10 +6,8 @@ import {
   BookOpen,
   Phone,
   ArrowRight,
-  Clock,
   LogOut,
   Shield,
-  Navigation,
   ExternalLink,
 } from "lucide-react";
 import {
@@ -28,6 +26,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const user = getCurrentUser();
   const [locationDetected, setLocationDetected] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [userLoc, setUserLoc] = useState<{
     latitude: number;
     longitude: number;
@@ -55,16 +54,22 @@ export default function Dashboard() {
           const relevant = availableZones.filter((z) =>
             z.disasterTypes.includes(dt)
           );
-          const withDist = userLoc
-            ? findNearest(relevant, userLoc.latitude, userLoc.longitude)
-            : relevant.map((z) => ({ ...z, distance: 0 }));
+          const withDist = findNearest(
+            relevant,
+            userLoc.latitude,
+            userLoc.longitude
+          );
           return { type: dt, meta, zone: withDist[0] || null };
         }
       )
     : [];
 
   function detectLocation() {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser.");
+      setLocationDetected(true);
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setUserLoc({
@@ -73,8 +78,21 @@ export default function Dashboard() {
         });
         setLocationDetected(true);
       },
-      () => {
+      (err) => {
         setLocationDetected(true);
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            setLocationError("Location permission denied. Please allow location access in your browser settings.");
+            break;
+          case err.POSITION_UNAVAILABLE:
+            setLocationError("Location unavailable. Please try again.");
+            break;
+          case err.TIMEOUT:
+            setLocationError("Location request timed out. Please try again.");
+            break;
+          default:
+            setLocationError("Unable to detect your location. Please check your browser settings.");
+        }
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -243,8 +261,16 @@ export default function Dashboard() {
         ) : (
           <div className="bg-white border border-neutral-200 rounded-xl p-6 text-center">
             <p className="text-sm text-neutral-500">
-              Location unavailable. Please check your browser settings.
+              {locationError || "Location unavailable. Please check your browser settings."}
             </p>
+            {locationError && (
+              <button
+                onClick={detectLocation}
+                className="mt-3 text-xs text-neutral-600 hover:text-neutral-900 font-medium"
+              >
+                Try again
+              </button>
+            )}
           </div>
         )}
       </section>
