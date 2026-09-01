@@ -1,0 +1,77 @@
+import { useState } from "react";
+import { BookOpen } from "lucide-react";
+import { loadGuides } from "../../utils/storage";
+import { DISASTER_TYPES, DISASTER_META, DisasterType } from "../../data/disasters";
+import GuideCard from "../../components/suraksha/GuideCard";
+
+export default function GuidesPage() {
+  const guides = loadGuides();
+  const [selectedType, setSelectedType] = useState<DisasterType | "All">("All");
+
+  const filtered =
+    selectedType === "All"
+      ? guides
+      : guides.filter((g) => g.type === selectedType);
+
+  return (
+    <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-2">
+          <BookOpen className="w-5 h-5 text-neutral-600" />
+          <h1 className="text-xl font-semibold text-neutral-900">
+            Disaster Safety Guides
+          </h1>
+        </div>
+        <p className="text-sm text-neutral-500">
+          Know what to do before, during, and after each type of disaster.
+        </p>
+      </div>
+
+      {/* Filter chips */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        <button
+          onClick={() => setSelectedType("All")}
+          className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+            selectedType === "All"
+              ? "bg-neutral-900 text-white border-neutral-900"
+              : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+          }`}
+        >
+          All
+        </button>
+        {DISASTER_TYPES.map((dt) => {
+          const meta = DISASTER_META[dt];
+          return (
+            <button
+              key={dt}
+              onClick={() => setSelectedType(dt)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+                selectedType === dt
+                  ? "bg-neutral-900 text-white border-neutral-900"
+                  : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+              }`}
+            >
+              {meta.icon} {dt}
+            </button>
+          );
+        })}
+      </div>
+
+      <p className="text-xs text-neutral-400 mb-4">
+        {filtered.length} guide{filtered.length !== 1 ? "s" : ""} found
+      </p>
+
+      {filtered.length === 0 ? (
+        <div className="text-center py-20 text-neutral-400">
+          <p className="text-sm">No guides for this disaster type.</p>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filtered.map((guide) => (
+            <GuideCard key={`guide-${guide.id}`} guide={guide} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
