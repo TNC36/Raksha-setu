@@ -20,6 +20,7 @@ import { DEFAULT_REPORTS } from "../../data/reports";
 import { formatDistance, findNearest } from "../../utils/distance";
 import { openGoogleMapsNavigation } from "../../utils/routing";
 import { fetchRoute, RouteResult } from "../../services/liveRouting";
+import { checkRouteHazards, HazardZone, HazardCheckResult } from "../../services/hazardRouting";
 import { fetchNearbyFacilities } from "../../services/liveFacilities";
 import { fetchEarthquakes } from "../../services/earthquake";
 import { fetchWeatherAlerts } from "../../services/weather";
@@ -56,6 +57,7 @@ export default function SafeZones() {
   const [realRoute, setRealRoute] = useState<[number, number][] | null>(null);
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
+  const [hazardCheck, setHazardCheck] = useState<HazardCheckResult | null>(null);
 
   // Keep a ref to abort in-flight route requests
   const routeAbortRef = useRef<AbortController | null>(null);
@@ -168,6 +170,14 @@ export default function SafeZones() {
           setRealRoute(result.polyline);
           setRouteResult(result);
           setLiveStatus((s) => ({ ...s, routing: true }));
+
+          // Hazard-aware route check against demo danger zones
+          const demoHazards: HazardZone[] = [
+            { latitude: 22.3020, longitude: 73.1880, radius: 400, type: "Flood", severity: "High" },
+            { latitude: 22.2980, longitude: 73.1780, radius: 300, type: "Flood", severity: "Medium" },
+          ];
+          const hazardResult = checkRouteHazards(result.polyline, demoHazards);
+          setHazardCheck(hazardResult);
         }
       } catch (err) {
         console.error("OSRM routing failed:", err);
@@ -368,6 +378,19 @@ export default function SafeZones() {
               <p className="text-[10px] text-neutral-400 mt-1">
                 Road-network route via {routeResult.source} — follows actual roads
               </p>
+
+              {/* Hazard check result */}
+              {hazardCheck && (
+                <div className={`mt-2 px-2 py-1.5 rounded text-[10px] font-medium border ${
+                  hazardCheck.safetyLabel === "SAFE"
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : hazardCheck.safetyLabel === "CAUTION"
+                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-red-50 text-red-700 border-red-200"
+                }`}>
+                  {hazardCheck.safetyLabel === "SAFE" ? "✅" : hazardCheck.safetyLabel === "CAUTION" ? "⚠️" : "🚫"} {hazardCheck.explanation}
+                </div>
+              )}
             </div>
           )}
 

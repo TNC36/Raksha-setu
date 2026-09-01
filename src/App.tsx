@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router";
+import { ThemeProvider } from "./components/suraksha/ThemeProvider";
 import Header from "./components/suraksha/Header";
 import Footer from "./components/suraksha/Footer";
 import Home from "./pages/suraksha/Home";
@@ -18,8 +19,9 @@ import ManageHelplines from "./admin/suraksha/ManageHelplines";
 
 export default function App() {
   return (
+    <ThemeProvider>
     <BrowserRouter>
-      <div className="min-h-screen flex flex-col bg-neutral-50">
+      <div className="min-h-screen flex flex-col bg-neutral-50 dark:bg-neutral-950 dark:text-neutral-100">
         <Header />
         <main className="flex-1">
           <Routes>
@@ -47,5 +49,6 @@ export default function App() {
         <Footer />
       </div>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }

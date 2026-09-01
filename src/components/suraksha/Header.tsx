@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Shield, Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
 import { isAdminLoggedIn, adminLogout, isUserLoggedIn, getCurrentUser, logoutUser } from "../../utils/storage";
+import ThemeToggle from "./ThemeToggle";
+import LanguageSelector from "./LanguageSelector";
 
 const NAV_LINKS = [
   { to: "/", label: "Home" },
@@ -127,6 +129,12 @@ export default function Header() {
                 </Link>
               </>
             )}
+
+            {/* Theme & Language */}
+            <div className="flex items-center gap-1 ml-2 pl-2 border-l border-neutral-200 dark:border-neutral-700">
+              <LanguageSelector />
+              <ThemeToggle />
+            </div>
           </nav>
 
           {/* Mobile toggle */}
