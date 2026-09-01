@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router";
 import {
   MapPin,
@@ -6,6 +6,8 @@ import {
   Crosshair,
   AlertTriangle,
   ExternalLink,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import {
   DISASTER_TYPES,
@@ -16,9 +18,15 @@ import { loadZones, loadAlerts, loadGuides } from "../../utils/storage";
 import { DEFAULT_FACILITIES } from "../../data/facilities";
 import { DEFAULT_REPORTS } from "../../data/reports";
 import { formatDistance, findNearest } from "../../utils/distance";
-import { generateDemoRoute, openGoogleMapsNavigation } from "../../utils/routing";
+import { openGoogleMapsNavigation } from "../../utils/routing";
+import { fetchRoute, RouteResult } from "../../services/liveRouting";
+import { fetchNearbyFacilities } from "../../services/liveFacilities";
+import { fetchEarthquakes } from "../../services/earthquake";
+import { fetchWeatherAlerts } from "../../services/weather";
 import MapView from "../../components/suraksha/MapView";
 import { SafeZone } from "../../data/zones";
+import { Alert } from "../../data/alerts";
+import { Facility } from "../../data/facilities";
 
 export default function SafeZones() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,18 +41,45 @@ export default function SafeZones() {
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [selectedZone, setSelectedZone] = useState<SafeZone | null>(null);
 
-  const zones = loadZones();
-  const alerts = loadAlerts();
-  const guides = loadGuides();
+  // Live data state
+  const [liveFacilities, setLiveFacilities] = useState<Facility[]>([]);
+  const [liveAlerts, setLiveAlerts] = useState<Alert[]>([]);
+  const [loadingLive, setLoadingLive] = useState(false);
+  const [liveStatus, setLiveStatus] = useState<{
+    facilities: boolean;
+    earthquakes: boolean;
+    weather: boolean;
+    routing: boolean;
+  }>({ facilities: false, earthquakes: false, weather: false, routing: false });
+
+  // OSRM real route state
+  const [realRoute, setRealRoute] = useState<[number, number][] | null>(null);
+  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
+  const [loadingRoute, setLoadingRoute] = useState(false);
+
+  // Keep a ref to abort in-flight route requests
+  const routeAbortRef = useRef<AbortController | null>(null);
+
+  const demoZones = loadZones();
+  const demoAlerts = loadAlerts();
+  const demoGuides = loadGuides();
 
   const meta = DISASTER_META[disaster];
 
-  const filteredZones = zones.filter(
+  // Merge demo + live facilities
+  const allFacilities = [...liveFacilities, ...DEFAULT_FACILITIES];
+
+  // Merge demo + live alerts
+  const allAlerts = [...liveAlerts, ...demoAlerts];
+
+  const filteredZones = demoZones.filter(
     (z) => z.disasterTypes.includes(disaster) && z.status !== "Closed"
   );
 
-  const filteredAlerts = alerts.filter((a) => a.type === disaster);
-  const filteredGuides = guides.filter((g) => g.type === disaster);
+  const filteredAlerts = allAlerts.filter(
+    (a) => a.type === disaster || (a.isLive && a.source?.includes("USGS"))
+  );
+  const filteredGuides = demoGuides.filter((g) => g.type === disaster);
 
   // Nearest zone with distance
   const zonesWithDistance = userLocation
@@ -53,18 +88,103 @@ export default function SafeZones() {
 
   const nearestZone = zonesWithDistance.length > 0 ? zonesWithDistance[0] : null;
 
-  // Route
-  const routePoints =
-    userLocation && selectedZone
-      ? generateDemoRoute(
-          { latitude: userLocation.latitude, longitude: userLocation.longitude },
-          { latitude: selectedZone.latitude, longitude: selectedZone.longitude }
-        )
-      : undefined;
+  // Fetch live data when user location is detected (async side effect)
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!userLocation) return;
+
+    const controller = new AbortController();
+
+    async function fetchLiveData() {
+      setLoadingLive(true);
+      try {
+        // Fetch real facilities nearby
+        const facilities = await fetchNearbyFacilities(
+          userLocation!.latitude,
+          userLocation!.longitude,
+          50,
+          ["Hospital", "Police", "Fire Station"]
+        );
+        if (!controller.signal.aborted) {
+          setLiveFacilities(facilities);
+          setLiveStatus((s) => ({ ...s, facilities: facilities.length > 0 }));
+        }
+
+        // Fetch real earthquake data for the region
+        const earthquakes = await fetchEarthquakes({
+          minLatitude: userLocation!.latitude - 5,
+          maxLatitude: userLocation!.latitude + 5,
+          minLongitude: userLocation!.longitude - 5,
+          maxLongitude: userLocation!.longitude + 5,
+          minMagnitude: 2.5,
+          limit: 20,
+        });
+        if (!controller.signal.aborted) {
+          setLiveAlerts(earthquakes);
+          setLiveStatus((s) => ({ ...s, earthquakes: earthquakes.length > 0 }));
+        }
+
+        // Fetch weather-based alerts
+        const weatherAlerts = await fetchWeatherAlerts(
+          userLocation!.latitude,
+          userLocation!.longitude
+        );
+        if (!controller.signal.aborted) {
+          setLiveAlerts((prev) => [...prev, ...weatherAlerts]);
+          setLiveStatus((s) => ({ ...s, weather: weatherAlerts.length > 0 }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch live data:", err);
+      }
+      if (!controller.signal.aborted) setLoadingLive(false);
+    }
+
+    fetchLiveData();
+
+    return () => controller.abort();
+  }, [userLocation?.latitude, userLocation?.longitude]);
+
+  // Clear route when zone or location changes (handled in handlers + initial state)
+
+  // Fetch OSRM route when user selects a zone
+  useEffect(() => {
+    if (!userLocation || !selectedZone) return;
+
+    // Abort previous request
+    routeAbortRef.current?.abort();
+    const controller = new AbortController();
+    routeAbortRef.current = controller;
+
+    async function getRoute() {
+      setLoadingRoute(true);
+      try {
+        const result = await fetchRoute(
+          userLocation!.latitude,
+          userLocation!.longitude,
+          selectedZone!.latitude,
+          selectedZone!.longitude
+        );
+        if (!controller.signal.aborted && result) {
+          setRealRoute(result.polyline);
+          setRouteResult(result);
+          setLiveStatus((s) => ({ ...s, routing: true }));
+        }
+      } catch (err) {
+        console.error("OSRM routing failed:", err);
+      }
+      if (!controller.signal.aborted) setLoadingRoute(false);
+    }
+
+    getRoute();
+
+    return () => controller.abort();
+  }, [userLocation?.latitude, userLocation?.longitude, selectedZone?.id]);
 
   function handleDisasterChange(dt: DisasterType) {
     setDisaster(dt);
     setSelectedZone(null);
+    setRealRoute(null);
+    setRouteResult(null);
     setSearchParams({ disaster: dt });
   }
 
@@ -107,14 +227,34 @@ export default function SafeZones() {
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-neutral-900 mb-1">
-          Safe Zones & Evacuation Routes
-        </h1>
-        <p className="text-xs text-neutral-400">
-          Select a disaster type to view relevant safe zones, danger areas, and
-          suggested evacuation routes.
-        </p>
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-xl font-semibold text-neutral-900 mb-1">
+            Safe Zones & Evacuation Routes
+          </h1>
+          <p className="text-xs text-neutral-400">
+            Select a disaster type to view relevant safe zones, real-time alerts, and road-network evacuation routes.
+          </p>
+        </div>
+        {/* Live data status indicator */}
+        <div className="flex-shrink-0 flex items-center gap-2 text-[10px]">
+          {loadingLive ? (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 text-amber-600 border border-amber-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+              SYNCING
+            </span>
+          ) : liveStatus.facilities || liveStatus.earthquakes ? (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-600 border border-green-200">
+              <Wifi className="w-3 h-3" />
+              LIVE DATA
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-neutral-100 text-neutral-500 border border-neutral-200">
+              <WifiOff className="w-3 h-3" />
+              DEMO MODE
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Disaster selector */}
@@ -165,6 +305,9 @@ export default function SafeZones() {
               <span>
                 Accuracy: <strong>{Math.round(userLocation.accuracy)}m</strong>
               </span>
+              {loadingLive && (
+                <span className="text-amber-500">Loading live data…</span>
+              )}
             </div>
           )}
 
@@ -207,6 +350,27 @@ export default function SafeZones() {
             </div>
           </div>
 
+          {/* OSRM Route info */}
+          {routeResult && (
+            <div className="bg-neutral-50 rounded-lg p-3 mb-3">
+              <div className="flex items-center gap-4 text-xs">
+                <span className="font-medium text-neutral-700">
+                  🛣️ Route: {routeResult.distanceFormatted}
+                </span>
+                <span className="text-neutral-400">·</span>
+                <span className="text-neutral-600">
+                  ETA: {routeResult.durationFormatted}
+                </span>
+                {loadingRoute && (
+                  <span className="text-amber-500 animate-pulse">Recalculating…</span>
+                )}
+              </div>
+              <p className="text-[10px] text-neutral-400 mt-1">
+                Road-network route via {routeResult.source} — follows actual roads
+              </p>
+            </div>
+          )}
+
           <div className="flex flex-wrap gap-2 text-xs text-neutral-500 mb-4">
             <span>Capacity: {nearestZone.capacity}</span>
             <span>·</span>
@@ -241,17 +405,27 @@ export default function SafeZones() {
           center={[22.3072, 73.1812]}
           zoom={13}
           disaster={disaster}
-          zones={zones}
-          alerts={alerts}
+          zones={demoZones}
+          alerts={allAlerts}
           reports={DEFAULT_REPORTS}
-          facilities={DEFAULT_FACILITIES}
+          facilities={allFacilities}
           userLocation={
             userLocation
               ? { latitude: userLocation.latitude, longitude: userLocation.longitude }
               : null
           }
           selectedZone={selectedZone}
-          routePoints={routePoints}
+          routePoints={undefined}
+          realRoute={realRoute || undefined}
+          routeInfo={
+            routeResult
+              ? {
+                  distance: routeResult.distanceFormatted,
+                  duration: routeResult.durationFormatted,
+                  source: routeResult.source,
+                }
+              : null
+          }
         />
       </div>
 
@@ -340,7 +514,7 @@ export default function SafeZones() {
           )}
         </div>
 
-        {/* Sidebar: Alerts + Reports + Guide */}
+        {/* Sidebar: Alerts + Facilities + Reports + Guide */}
         <div className="space-y-6">
           {/* Disaster-specific alerts */}
           <div>
@@ -352,22 +526,83 @@ export default function SafeZones() {
               <p className="text-xs text-neutral-400">No active alerts.</p>
             ) : (
               <div className="space-y-2">
-                {filteredAlerts.slice(0, 3).map((alert) => (
+                {filteredAlerts.slice(0, 5).map((alert) => (
                   <div
                     key={`alert-${alert.id}`}
                     className="bg-white border border-neutral-200 rounded-lg p-3"
                   >
-                    <p className="text-xs font-medium text-neutral-900">
-                      {alert.title}
-                    </p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-xs font-medium text-neutral-900 flex-1">
+                        {alert.title}
+                      </p>
+                      {alert.isLive && (
+                        <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium bg-green-50 text-green-600 border border-green-200">
+                          <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                          LIVE
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-neutral-500 mt-0.5">
-                      {alert.severity}
+                      {alert.severity} · {alert.location}
                     </p>
+                    {alert.source && (
+                      <p className="text-[10px] text-neutral-400 mt-1">
+                        Source: {alert.source}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
             )}
           </div>
+
+          {/* Real-time nearby facilities */}
+          {liveFacilities.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-neutral-900 mb-3">
+                🏥 Nearby Facilities (Live)
+              </h3>
+              <div className="space-y-2">
+                {liveFacilities.slice(0, 6).map((fac) => (
+                  <div
+                    key={`live-fac-${fac.id}`}
+                    className="bg-white border border-neutral-200 rounded-lg p-3 flex items-center gap-3"
+                  >
+                    <span className="text-sm">
+                      {fac.type === "Hospital"
+                        ? "🏥"
+                        : fac.type === "Police"
+                        ? "🚔"
+                        : "🚒"}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-neutral-900 truncate">
+                        {fac.name}
+                      </p>
+                      <p className="text-[10px] text-neutral-400">
+                        {fac.type === "Hospital"
+                          ? "Hospital"
+                          : fac.type === "Police"
+                          ? "Police Station"
+                          : "Fire Station"}{" "}
+                        · {fac.latitude.toFixed(4)}, {fac.longitude.toFixed(4)}
+                      </p>
+                    </div>
+                    {userLocation && (
+                      <button
+                        onClick={() =>
+                          openGoogleMapsNavigation(fac.latitude, fac.longitude)
+                        }
+                        className="text-[10px] text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-0.5 flex-shrink-0"
+                      >
+                        Nav <ExternalLink className="w-2 h-2" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Community Reports */}
           <div>
@@ -417,6 +652,15 @@ export default function SafeZones() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Data source disclaimer */}
+      <div className="mb-6 bg-neutral-50 border border-neutral-200 rounded-xl p-4 text-center">
+        <p className="text-[11px] text-neutral-400 leading-relaxed max-w-2xl mx-auto">
+          Live facility data sourced from OpenStreetMap (Overpass API). Earthquake data from USGS Earthquake Hazards Program.
+          Weather alerts from Open-Meteo. Road-network routing via OSRM (Open Source Routing Machine).
+          Safe zones and community reports use demonstration data — replace with verified government data for production.
+        </p>
       </div>
     </div>
   );

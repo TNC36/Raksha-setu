@@ -61,6 +61,32 @@ export default function AlertCard({ alert, compact }: AlertCardProps) {
             {new Date(alert.createdAt).toLocaleDateString()}
           </span>
         </div>
+
+        {(alert.source || alert.isLive) && (
+          <div className="flex items-center gap-2 mt-2">
+            {alert.isLive && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                LIVE
+              </span>
+            )}
+            {alert.source && (
+              <span className="text-[10px] text-neutral-400">
+                {alert.source}
+              </span>
+            )}
+            {alert.sourceUrl && (
+              <a
+                href={alert.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-blue-500 hover:text-blue-700 underline"
+              >
+                Source
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Severity accent line */}

@@ -76,6 +76,10 @@ interface MapViewProps {
   userLocation?: { latitude: number; longitude: number } | null;
   selectedZone?: SafeZone | null;
   routePoints?: RoutePoint[];
+  /** Real OSRM road-network route as [lat, lng] pairs — preferred over demo routePoints */
+  realRoute?: [number, number][];
+  /** Route info label (distance, ETA from OSRM) */
+  routeInfo?: { distance: string; duration: string; source: string } | null;
   layers?: LayerToggles;
 }
 
@@ -147,6 +151,8 @@ export default function MapView({
   userLocation,
   selectedZone,
   routePoints,
+  realRoute,
+  routeInfo,
 }: MapViewProps) {
   const [layers, toggleLayer] = useMapLayers(disaster);
   const meta = DISASTER_META[disaster];
@@ -351,8 +357,17 @@ export default function MapView({
             </Marker>
           ))}
 
-        {/* Suggested Route */}
-        {layers.route && routePoints && routePoints.length > 1 && (
+        {/* Suggested Route — prefer real OSRM route, fall back to demo */}
+        {layers.route && realRoute && realRoute.length > 1 ? (
+          <Polyline
+            positions={realRoute}
+            pathOptions={{
+              color: meta.color,
+              weight: 5,
+              opacity: 0.9,
+            }}
+          />
+        ) : layers.route && routePoints && routePoints.length > 1 ? (
           <Polyline
             positions={routePoints.map((p) => [p.latitude, p.longitude] as [number, number])}
             pathOptions={{
@@ -362,11 +377,23 @@ export default function MapView({
               dashArray: "10 8",
             }}
           />
-        )}
+        ) : null}
       </MapContainer>
 
       {/* Layer toggles */}
       <LayerPanel layers={layers} disaster={disaster} onToggle={toggleLayer} />
+
+      {/* Route info badge */}
+      {routeInfo && (
+        <div className="absolute bottom-16 left-4 z-[1000] bg-white border border-neutral-200 rounded-lg px-3 py-2 shadow-sm">
+          <div className="flex items-center gap-3 text-[11px]">
+            <span className="font-medium text-neutral-900">Route: {routeInfo.distance}</span>
+            <span className="text-neutral-400">·</span>
+            <span className="text-neutral-600">ETA: {routeInfo.duration}</span>
+          </div>
+          <p className="text-[10px] text-neutral-400 mt-0.5">{routeInfo.source}</p>
+        </div>
+      )}
     </div>
   );
 }

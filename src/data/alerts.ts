@@ -12,6 +12,9 @@ export interface Alert {
   longitude: number;
   description: string;
   createdAt: string;
+  source?: string;
+  sourceUrl?: string;
+  isLive?: boolean;
 }
 
 export const DEFAULT_ALERTS: Alert[] = [
