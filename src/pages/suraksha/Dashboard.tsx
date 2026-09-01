@@ -10,6 +10,7 @@ import {
   Shield,
   ExternalLink,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import {
   getCurrentUser,
   logoutUser,
@@ -360,7 +361,7 @@ function DashStat({
   value,
   accent,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   value: number;
   accent: string;
@@ -389,7 +390,7 @@ function QuickLink({
   sub,
 }: {
   to: string;
-  icon: any;
+  icon: LucideIcon;
   label: string;
   sub: string;
 }) {

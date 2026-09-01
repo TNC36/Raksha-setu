@@ -19,7 +19,7 @@ const EMPTY_FORM = {
 
 export default function ManageAlerts() {
   const navigate = useNavigate();
-  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>(loadAlerts);
   const [editing, setEditing] = useState<Alert | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -27,9 +27,7 @@ export default function ManageAlerts() {
   useEffect(() => {
     if (!isAdminLoggedIn()) {
       navigate("/admin/login", { replace: true });
-      return;
     }
-    setAlerts(loadAlerts());
   }, [navigate]);
 
   function handleSave(e: React.FormEvent) {

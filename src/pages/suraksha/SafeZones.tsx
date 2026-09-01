@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useSearchParams } from "react-router";
 import {
   MapPin,
   Navigation,
   Crosshair,
   AlertTriangle,
-  Phone,
   ExternalLink,
 } from "lucide-react";
 import {
@@ -16,7 +15,7 @@ import {
 import { loadZones, loadAlerts, loadGuides } from "../../utils/storage";
 import { DEFAULT_FACILITIES } from "../../data/facilities";
 import { DEFAULT_REPORTS } from "../../data/reports";
-import { haversineDistance, formatDistance, findNearest } from "../../utils/distance";
+import { formatDistance, findNearest } from "../../utils/distance";
 import { generateDemoRoute, openGoogleMapsNavigation } from "../../utils/routing";
 import MapView from "../../components/suraksha/MapView";
 import { SafeZone } from "../../data/zones";

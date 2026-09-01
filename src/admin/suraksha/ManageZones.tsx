@@ -19,7 +19,7 @@ const EMPTY_FORM = {
 
 export default function ManageZones() {
   const navigate = useNavigate();
-  const [zones, setZones] = useState<SafeZone[]>([]);
+  const [zones, setZones] = useState<SafeZone[]>(loadZones);
   const [editing, setEditing] = useState<SafeZone | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -27,9 +27,7 @@ export default function ManageZones() {
   useEffect(() => {
     if (!isAdminLoggedIn()) {
       navigate("/admin/login", { replace: true });
-      return;
     }
-    setZones(loadZones());
   }, [navigate]);
 
   function handleSave(e: React.FormEvent) {

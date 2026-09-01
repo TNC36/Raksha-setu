@@ -9,6 +9,7 @@ import {
   Globe,
   Volume2,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { isAdminLoggedIn } from "../../utils/storage";
 import { loadAlerts, loadZones, loadGuides, loadHelplines } from "../../utils/storage";
 import StatCard from "../../components/suraksha/StatCard";
@@ -134,7 +135,7 @@ function StatusCard({
   label,
   status,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   status: string;
 }) {

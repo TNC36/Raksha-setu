@@ -8,13 +8,9 @@ interface ReadAloudProps {
 
 export default function ReadAloud({ text, label }: ReadAloudProps) {
   const [status, setStatus] = useState<"idle" | "speaking" | "paused">("idle");
-  const [supported, setSupported] = useState(true);
-
-  useEffect(() => {
-    setSupported(
-      typeof window !== "undefined" && "speechSynthesis" in window
-    );
-  }, []);
+  const [supported] = useState(
+    () => typeof window !== "undefined" && "speechSynthesis" in window
+  );
 
   const stop = useCallback(() => {
     if (typeof window !== "undefined" && window.speechSynthesis) {

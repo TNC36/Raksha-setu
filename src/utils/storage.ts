@@ -3,15 +3,6 @@ import { DEFAULT_ZONES, SafeZone } from "../data/zones";
 import { DEFAULT_GUIDES, Guide } from "../data/guides";
 import { DEFAULT_HELPLINES, Helpline } from "../data/helplines";
 
-type StorageKey =
-  | "raksha_alerts"
-  | "raksha_zones"
-  | "raksha_guides"
-  | "raksha_helplines"
-  | "raksha_users"
-  | "raksha_current_user"
-  | "raksha_admin";
-
 function isBrowser(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 }

@@ -15,7 +15,7 @@ const EMPTY_FORM = {
 
 export default function ManageGuides() {
   const navigate = useNavigate();
-  const [guides, setGuides] = useState<Guide[]>([]);
+  const [guides, setGuides] = useState<Guide[]>(loadGuides);
   const [editing, setEditing] = useState<Guide | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -23,9 +23,7 @@ export default function ManageGuides() {
   useEffect(() => {
     if (!isAdminLoggedIn()) {
       navigate("/admin/login", { replace: true });
-      return;
     }
-    setGuides(loadGuides());
   }, [navigate]);
 
   function handleSave(e: React.FormEvent) {

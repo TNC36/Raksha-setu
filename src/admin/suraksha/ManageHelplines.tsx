@@ -8,7 +8,7 @@ const EMPTY_FORM = { name: "", phone: "" };
 
 export default function ManageHelplines() {
   const navigate = useNavigate();
-  const [helplines, setHelplines] = useState<Helpline[]>([]);
+  const [helplines, setHelplines] = useState<Helpline[]>(loadHelplines);
   const [editing, setEditing] = useState<Helpline | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -16,9 +16,7 @@ export default function ManageHelplines() {
   useEffect(() => {
     if (!isAdminLoggedIn()) {
       navigate("/admin/login", { replace: true });
-      return;
     }
-    setHelplines(loadHelplines());
   }, [navigate]);
 
   function handleSave(e: React.FormEvent) {
