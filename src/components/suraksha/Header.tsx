@@ -35,17 +35,17 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-neutral-200">
+    <header className="sticky top-0 z-50 bg-card border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2.5 no-underline">
-            <Shield className="w-6 h-6 text-neutral-900" strokeWidth={1.8} />
+            <Shield className="w-6 h-6 text-primary" strokeWidth={1.8} />
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold text-neutral-900 tracking-tight">
+              <span className="text-sm font-semibold text-foreground tracking-tight">
                 {t("app.name")}
               </span>
-              <span className="text-[10px] text-neutral-400 tracking-wide uppercase">
+              <span className="text-[10px] text-muted-foreground tracking-wide uppercase">
                 {t("app.tagline")}
               </span>
             </div>
@@ -59,8 +59,8 @@ export default function Header() {
                 to={link.to}
                 className={`px-3 py-1.5 text-sm rounded-md no-underline transition-colors ${
                   location.pathname === link.to
-                    ? "bg-neutral-900 text-white"
-                    : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
                 {t(link.key)}
@@ -73,8 +73,8 @@ export default function Header() {
                   to="/admin/dashboard"
                   className={`px-3 py-1.5 text-sm rounded-md no-underline transition-colors flex items-center gap-1.5 ${
                     location.pathname.startsWith("/admin")
-                      ? "bg-neutral-900 text-white"
-                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
@@ -82,7 +82,7 @@ export default function Header() {
                 </Link>
                 <button
                   onClick={handleAdminLogout}
-                  className="px-3 py-1.5 text-sm rounded-md text-neutral-500 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-sm rounded-md text-muted-foreground hover:text-destructive hover:bg-red-50 transition-colors flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   {t("nav.logout")}
@@ -94,19 +94,19 @@ export default function Header() {
                   to="/dashboard"
                   className={`px-3 py-1.5 text-sm rounded-md no-underline transition-colors flex items-center gap-1.5 ${
                     location.pathname === "/dashboard"
-                      ? "bg-neutral-900 text-white"
-                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
                   {t("nav.dashboard")}
                 </Link>
-                <span className="text-xs text-neutral-400 hidden lg:inline">
+                <span className="text-xs text-muted-foreground hidden lg:inline">
                   {user?.name}
                 </span>
                 <button
                   onClick={handleUserLogout}
-                  className="px-3 py-1.5 text-sm rounded-md text-neutral-500 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-sm rounded-md text-muted-foreground hover:text-destructive hover:bg-red-50 transition-colors flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>
@@ -117,23 +117,22 @@ export default function Header() {
                   to="/login"
                   className={`px-3 py-1.5 text-sm rounded-md no-underline transition-colors ${
                     location.pathname === "/login"
-                      ? "bg-neutral-900 text-white"
-                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`}
                 >
                   {t("nav.signIn")}
                 </Link>
                 <Link
                   to="/register"
-                  className="px-3 py-1.5 text-sm rounded-md bg-neutral-900 text-white no-underline hover:bg-neutral-800 transition-colors"
+                  className="px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground no-underline hover:bg-primary/90 transition-colors"
                 >
                   {t("nav.register")}
                 </Link>
               </>
             )}
 
-            {/* Theme & Language */}
-            <div className="flex items-center gap-1 ml-2 pl-2 border-l border-neutral-200 dark:border-neutral-700">
+            {/* Theme & Language */}              <div className="flex items-center gap-1 ml-2 pl-2 border-l border-border">
               <LanguageSelector />
               <ThemeToggle />
             </div>
@@ -141,7 +140,7 @@ export default function Header() {
 
           {/* Mobile toggle */}
           <button
-            className="md:hidden p-2 rounded-md text-neutral-600 hover:bg-neutral-100"
+            className="md:hidden p-2 rounded-md text-muted-foreground hover:bg-secondary"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle navigation"
           >
@@ -151,7 +150,7 @@ export default function Header() {
 
         {/* Mobile nav */}
         {mobileOpen && (
-          <nav className="md:hidden pb-4 border-t border-neutral-100 pt-3 flex flex-col gap-1">
+          <nav className="md:hidden pb-4 border-t border-border pt-3 flex flex-col gap-1">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.to}
@@ -159,27 +158,27 @@ export default function Header() {
                 onClick={() => setMobileOpen(false)}
                 className={`px-3 py-2 text-sm rounded-md no-underline ${
                   location.pathname === link.to
-                    ? "bg-neutral-900 text-white"
-                    : "text-neutral-600 hover:bg-neutral-100"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary"
                 }`}
               >
                 {t(link.key)}
               </Link>
             ))}
-            <div className="h-px bg-neutral-100 my-1" />
+            <div className="h-px bg-border my-1" />
             {adminLoggedIn ? (
               <>
                 <Link
                   to="/admin/dashboard"
                   onClick={() => setMobileOpen(false)}
-                  className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100 flex items-center gap-1.5"
+                  className="px-3 py-2 text-sm rounded-md no-underline text-muted-foreground hover:bg-secondary flex items-center gap-1.5"
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
                   {t("admin.dashboard")}
                 </Link>
                 <button
                   onClick={handleAdminLogout}
-                  className="px-3 py-2 text-sm rounded-md text-left text-red-600 hover:bg-red-50 flex items-center gap-1.5"
+                  className="px-3 py-2 text-sm rounded-md text-left text-destructive hover:bg-red-50 flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   {t("nav.logout")}
@@ -190,17 +189,17 @@ export default function Header() {
                 <Link
                   to="/dashboard"
                   onClick={() => setMobileOpen(false)}
-                  className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100 flex items-center gap-1.5"
+                  className="px-3 py-2 text-sm rounded-md no-underline text-muted-foreground hover:bg-secondary flex items-center gap-1.5"
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
                   {t("nav.dashboard")}
                 </Link>
-                <span className="px-3 py-1 text-xs text-neutral-400">
+                <span className="px-3 py-1 text-xs text-muted-foreground">
                   {user?.name}
                 </span>
                 <button
                   onClick={handleUserLogout}
-                  className="px-3 py-2 text-sm rounded-md text-left text-red-600 hover:bg-red-50 flex items-center gap-1.5"
+                  className="px-3 py-2 text-sm rounded-md text-left text-destructive hover:bg-red-50 flex items-center gap-1.5"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   {t("nav.signOut")}
@@ -211,7 +210,7 @@ export default function Header() {
                 <Link
                   to="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="px-3 py-2 text-sm rounded-md no-underline text-neutral-600 hover:bg-neutral-100 flex items-center gap-1.5"
+                  className="px-3 py-2 text-sm rounded-md no-underline text-muted-foreground hover:bg-secondary flex items-center gap-1.5"
                 >
                   <User className="w-3.5 h-3.5" />
                   {t("nav.signIn")}
@@ -219,7 +218,7 @@ export default function Header() {
                 <Link
                   to="/register"
                   onClick={() => setMobileOpen(false)}
-                  className="px-3 py-2 text-sm rounded-md no-underline bg-neutral-900 text-white text-center"
+                  className="px-3 py-2 text-sm rounded-md no-underline bg-primary text-primary-foreground text-center"
                 >
                   {t("nav.createAccount")}
                 </Link>
