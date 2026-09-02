@@ -26,24 +26,24 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative bg-neutral-950 text-white overflow-hidden">
+      <section className="relative bg-primary text-primary-foreground overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.03),transparent_60%)]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 relative z-10">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-neutral-300 mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-primary-foreground/70 mb-6">
               <Shield className="w-3 h-3" />
               {t("app.tagline")}
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6">
               {t("home.heroTitle")}
             </h1>
-            <p className="text-base sm:text-lg text-neutral-400 leading-relaxed mb-8 max-w-lg">
+            <p className="text-base sm:text-lg text-primary-foreground/60 leading-relaxed mb-8 max-w-lg">
               {t("home.heroDescription")}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/alerts"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-neutral-900 text-sm font-medium rounded-lg hover:bg-neutral-100 transition-colors no-underline"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-primary text-sm font-medium rounded-lg hover:bg-white/90 transition-colors no-underline"
               >
                 {t("home.viewAlerts")}
                 <ArrowRight className="w-4 h-4" />
