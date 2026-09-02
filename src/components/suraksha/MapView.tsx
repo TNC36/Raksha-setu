@@ -180,6 +180,9 @@ export default function MapView({
         zoom={zoom}
         className="w-full h-[500px] lg:h-[600px]"
         zoomControl={true}
+        fadeAnimation={false}
+        zoomAnimation={false}
+        markerZoomAnimation={false}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
