@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexReactClient } from "convex/react";
+import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import App from "./App";
 import "./index.css";
 import "./i18n";
@@ -49,10 +50,10 @@ class RootErrorBoundary extends React.Component<
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ConvexProvider client={convex}>
+    <ConvexAuthProvider client={convex}>
       <RootErrorBoundary>
         <App />
       </RootErrorBoundary>
-    </ConvexProvider>
+    </ConvexAuthProvider>
   </React.StrictMode>
 );
