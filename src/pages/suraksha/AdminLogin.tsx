@@ -96,23 +96,23 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-neutral-50 dark:bg-neutral-950">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-background">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-neutral-900 dark:bg-neutral-800 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
             <Shield className="w-6 h-6 text-white" strokeWidth={1.8} />
           </div>
-          <h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+          <h1 className="text-lg font-semibold text-foreground">
             Admin Login
           </h1>
-          <p className="text-xs text-neutral-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Raksha Setu Administration
           </p>
         </div>
 
-        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-6 space-y-4">
+        <div className="bg-card dark:bg-primary border border-border rounded-xl p-6 space-y-4">
           {error && (
-            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 text-xs rounded-lg p-3">
+            <div className="bg-destructive/10 border border-destructive/30 text-destructive text-xs rounded-lg p-3">
               {error}
             </div>
           )}
@@ -121,21 +121,21 @@ export default function AdminLogin() {
           {step === "email" && (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                <label className="block text-xs font-medium text-foreground mb-1.5">
                   Admin Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10 dark:focus:ring-neutral-100/10 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
+                    className="w-full pl-10 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/20 bg-card bg-primary text-foreground"
                     placeholder="admin@example.com"
                     required
                   />
                 </div>
-                <p className="text-[10px] text-neutral-400 mt-1">
+                <p className="text-[10px] text-muted-foreground mt-1">
                   A one-time verification code will be sent to this email.
                 </p>
               </div>
@@ -143,7 +143,7 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading || !email.trim()}
-                className="w-full py-2.5 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-sm font-medium rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 dark:hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Sending OTP…</>
@@ -158,19 +158,19 @@ export default function AdminLogin() {
           {step === "otp" && (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+                <label className="block text-xs font-medium text-foreground mb-1.5">
                   Verification Code
                 </label>
-                <p className="text-[10px] text-neutral-400 mb-2">
+                <p className="text-[10px] text-muted-foreground mb-2">
                   Code sent to <strong>{email}</strong>
                 </p>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="text"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 text-sm border border-neutral-200 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900/10 dark:focus:ring-neutral-100/10 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 tracking-widest text-center"
+                    className="w-full pl-10 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/20 bg-card bg-primary text-foreground tracking-widest text-center"
                     placeholder="000000"
                     maxLength={6}
                     required
@@ -181,7 +181,7 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading || otp.length < 4}
-                className="w-full py-2.5 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-sm font-medium rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 dark:hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Verifying…</>
@@ -195,14 +195,14 @@ export default function AdminLogin() {
                   type="button"
                   onClick={handleSendOtp}
                   disabled={loading}
-                  className="flex-1 py-2 text-xs font-medium text-neutral-500 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                  className="flex-1 py-2 text-xs font-medium text-muted-foreground border border-border rounded-lg hover:bg-secondary transition-colors"
                 >
                   Resend OTP
                 </button>
                 <button
                   type="button"
                   onClick={() => { setStep("email"); setOtp(""); setError(""); }}
-                  className="flex-1 py-2 text-xs font-medium text-neutral-500 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                  className="flex-1 py-2 text-xs font-medium text-muted-foreground border border-border rounded-lg hover:bg-secondary transition-colors"
                 >
                   Change Email
                 </button>
@@ -214,11 +214,11 @@ export default function AdminLogin() {
           {step === "role-select" && currentUser && (
             <div className="space-y-4">
               <div className="text-center">
-                <CheckCircle2 className="w-10 h-10 text-green-500 mx-auto mb-3" />
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                <CheckCircle2 className="w-10 h-10 text-success mx-auto mb-3" />
+                <p className="text-sm font-medium text-foreground">
                   Signed in as {currentUser.email}
                 </p>
-                <p className="text-xs text-neutral-400 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   No administrator account exists yet.
                 </p>
               </div>
@@ -226,7 +226,7 @@ export default function AdminLogin() {
               <button
                 onClick={handleBecomeAdmin}
                 disabled={loading}
-                className="w-full py-2.5 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-sm font-medium rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 dark:hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Setting up…</>
@@ -235,14 +235,14 @@ export default function AdminLogin() {
                 )}
               </button>
 
-              <p className="text-[10px] text-neutral-400 text-center leading-relaxed">
+              <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
                 This will make you the administrator. Only the first user can claim this role automatically.
                 After that, new admins must be promoted by an existing admin.
               </p>
 
               <button
                 onClick={handleSignOut}
-                className="w-full py-2 text-xs font-medium text-neutral-500 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                className="w-full py-2 text-xs font-medium text-muted-foreground border border-border rounded-lg hover:bg-secondary transition-colors"
               >
                 Sign out and use a different account
               </button>
@@ -251,18 +251,18 @@ export default function AdminLogin() {
         </div>
 
         {/* Info section */}
-        <div className="mt-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-xl p-4">
-          <p className="text-[11px] text-blue-700 dark:text-blue-400 leading-relaxed">
+        <div className="mt-4 bg-info/10 bg-info/10 border border-blue-200 border-info/30 rounded-xl p-4">
+          <p className="text-[11px] text-info text-info leading-relaxed">
             <strong>How admin access works:</strong> Sign in with the email account that should have admin access.
             The first user to sign in can claim the administrator role. Subsequent admins must be promoted
             by an existing administrator.
           </p>
         </div>
 
-        <p className="text-xs text-neutral-500 text-center mt-4">
+        <p className="text-xs text-muted-foreground text-center mt-4">
           <Link
             to="/"
-            className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 no-underline inline-flex items-center gap-1"
+            className="text-muted-foreground hover:text-foreground hover:text-foreground no-underline inline-flex items-center gap-1"
           >
             <ArrowLeft className="w-3 h-3" />
             Back to Raksha Setu

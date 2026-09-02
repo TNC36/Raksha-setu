@@ -96,27 +96,27 @@ export default function AlertsPage() {
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-5 h-5 text-neutral-600" />
-            <h1 className="text-xl font-semibold text-neutral-900">
+            <AlertTriangle className="w-5 h-5 text-muted-foreground" />
+            <h1 className="text-xl font-semibold text-foreground">
               {t("alerts.title")}
             </h1>
           </div>
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-muted-foreground">
             {t("alerts.subtitle")}
           </p>
-          <p className="text-[10px] text-neutral-400 mt-1">
+          <p className="text-[10px] text-muted-foreground mt-1">
             {t("alerts.dataSource")}
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <div className="text-[10px] text-right">
             {lastSync && (
-              <p className="text-neutral-400">{t("alerts.lastSync")}: {lastSync}</p>
+              <p className="text-muted-foreground">{t("alerts.lastSync")}: {lastSync}</p>
             )}
-            <p className="text-neutral-500 font-medium">
+            <p className="text-muted-foreground font-medium">
               {liveCount > 0 ? (
                 <span className="inline-flex items-center gap-1">
-                  <Wifi className="w-3 h-3 text-green-500" />
+                  <Wifi className="w-3 h-3 text-success" />
                   {liveCount} {t("alerts.liveAlerts")}
                 </span>
               ) : (
@@ -130,11 +130,11 @@ export default function AlertsPage() {
           <button
             onClick={refreshLiveData}
             disabled={loading}
-            className="p-2 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors disabled:opacity-50"
+            className="p-2 rounded-lg border border-border hover:bg-secondary transition-colors disabled:opacity-50"
             title={t("alerts.refresh")}
           >
             <RefreshCw
-              className={`w-4 h-4 text-neutral-500 ${loading ? "animate-spin" : ""}`}
+              className={`w-4 h-4 text-muted-foreground ${loading ? "animate-spin" : ""}`}
             />
           </button>
         </div>
@@ -145,8 +145,8 @@ export default function AlertsPage() {
           onClick={() => setSelectedType("All")}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
             selectedType === "All"
-              ? "bg-neutral-900 text-white border-neutral-900"
-              : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-card text-muted-foreground border-border hover:border-primary/50"
           }`}
         >
           {t("alerts.all")}
@@ -159,8 +159,8 @@ export default function AlertsPage() {
               onClick={() => setSelectedType(dt)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                 selectedType === dt
-                  ? "bg-neutral-900 text-white border-neutral-900"
-                  : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-muted-foreground border-border hover:border-primary/50"
               }`}
             >
               {meta.icon} {dt}
@@ -169,20 +169,20 @@ export default function AlertsPage() {
         })}
       </div>
 
-      <p className="text-xs text-neutral-400 mb-4">
+      <p className="text-xs text-muted-foreground mb-4">
         {sorted.length} alert{sorted.length !== 1 ? "s" : ""} found
         {liveCount > 0 && ` (${liveCount} ${t("alerts.liveAlerts")})`}
         {dbCount > 0 && ` (${dbCount} ${t("alerts.demoOnly")})`}
       </p>
 
       {sorted.length === 0 ? (
-        <div className="text-center py-20 text-neutral-400">
+        <div className="text-center py-20 text-muted-foreground">
           <p className="text-sm">
             {convexAlerts === undefined ? t("common.loading") : t("alerts.noAlerts")}
           </p>
           <button
             onClick={refreshLiveData}
-            className="mt-3 text-xs text-neutral-600 hover:text-neutral-900 font-medium"
+            className="mt-3 text-xs text-muted-foreground hover:text-foreground font-medium"
           >
             {t("alerts.refresh")}
           </button>

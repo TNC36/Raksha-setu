@@ -30,12 +30,12 @@ export default function GuidesPage() {
     <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <BookOpen className="w-5 h-5 text-neutral-600" />
-          <h1 className="text-xl font-semibold text-neutral-900">
+          <BookOpen className="w-5 h-5 text-muted-foreground" />
+          <h1 className="text-xl font-semibold text-foreground">
             {t("guides.title")}
           </h1>
         </div>
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           {t("guides.subtitle")}
         </p>
       </div>
@@ -46,8 +46,8 @@ export default function GuidesPage() {
           onClick={() => setSelectedType("All")}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
             selectedType === "All"
-              ? "bg-neutral-900 text-white border-neutral-900"
-              : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-card text-muted-foreground border-border hover:border-primary/50"
           }`}
         >
           All
@@ -60,8 +60,8 @@ export default function GuidesPage() {
               onClick={() => setSelectedType(dt)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                 selectedType === dt
-                  ? "bg-neutral-900 text-white border-neutral-900"
-                  : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-muted-foreground border-border hover:border-primary/50"
               }`}
             >
               {meta.icon} {dt}
@@ -70,13 +70,13 @@ export default function GuidesPage() {
         })}
       </div>
 
-      <p className="text-xs text-neutral-400 mb-4">
+      <p className="text-xs text-muted-foreground mb-4">
         {filtered.length} guide{filtered.length !== 1 ? "s" : ""} found
         {guidesData === undefined && " · " + t("common.loading")}
       </p>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-20 text-neutral-400">
+        <div className="text-center py-20 text-muted-foreground">
           <p className="text-sm">
             {guidesData === undefined
               ? t("common.loading")

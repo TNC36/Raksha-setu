@@ -33,7 +33,7 @@ export default function AdminDashboard() {
   if (isAdmin === undefined || alerts === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-sm text-neutral-400">Loading…</div>
+        <div className="text-sm text-muted-foreground">Loading…</div>
       </div>
     );
   }
@@ -81,20 +81,20 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <LayoutDashboard className="w-5 h-5 text-neutral-600" />
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+          <LayoutDashboard className="w-5 h-5 text-muted-foreground" />
+          <h1 className="text-xl font-semibold text-foreground">
             Admin Dashboard
           </h1>
         </div>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm text-muted-foreground">
           Raksha Setu administration — manage alerts, safe zones, guides, and helplines.
         </p>
         {currentUser && (
-          <p className="text-xs text-neutral-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Signed in as <strong>{currentUser.email || currentUser.name}</strong> · Role: {currentUser.role}
           </p>
         )}
-        <p className="text-[10px] text-neutral-400 mt-0.5">
+        <p className="text-[10px] text-muted-foreground mt-0.5">
           All data stored in Convex database · Server-side authorization enforced
         </p>
       </div>
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
 
       {/* System Status */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+        <h2 className="text-sm font-semibold text-foreground mb-3">
           System Status
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
 
       {/* Data Source Status */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+        <h2 className="text-sm font-semibold text-foreground mb-3">
           Data Sources
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
 
       {/* Management Links */}
       <div>
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+        <h2 className="text-sm font-semibold text-foreground mb-3">
           Management
         </h2>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -143,19 +143,19 @@ export default function AdminDashboard() {
             <Link
               key={link.to}
               to={link.to}
-              className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-5 flex items-center gap-4 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors no-underline group"
+              className="bg-card dark:bg-primary border border-border rounded-xl p-5 flex items-center gap-4 hover:border-primary/50 hover:border-primary/50 transition-colors no-underline group"
             >
-              <div className="w-10 h-10 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center group-hover:bg-neutral-900 dark:group-hover:bg-neutral-100 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-secondary bg-primary flex items-center justify-center group-hover:bg-primary dark:group-hover:bg-secondary transition-colors">
                 <link.icon
-                  className="w-5 h-5 text-neutral-600 dark:text-neutral-400 group-hover:text-white dark:group-hover:text-neutral-900 transition-colors"
+                  className="w-5 h-5 text-muted-foreground group-hover:text-white dark:group-hover:text-foreground transition-colors"
                   strokeWidth={1.8}
                 />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                <p className="text-sm font-medium text-foreground">
                   {link.label}
                 </p>
-                <p className="text-xs text-neutral-400 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {link.count} items{link.detail ? ` · ${link.detail}` : ""}
                 </p>
               </div>
@@ -177,12 +177,12 @@ function StatusCard({
   status: string;
 }) {
   return (
-    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 flex items-center gap-3">
-      <Icon className="w-4 h-4 text-neutral-400" strokeWidth={1.8} />
+    <div className="bg-card dark:bg-primary border border-border rounded-xl p-4 flex items-center gap-3">
+      <Icon className="w-4 h-4 text-muted-foreground" strokeWidth={1.8} />
       <div className="flex-1">
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">{label}</p>
+        <p className="text-xs text-muted-foreground">{label}</p>
         <p className="text-xs font-medium text-green-600 flex items-center gap-1.5 mt-0.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+          <span className="w-1.5 h-1.5 rounded-full bg-success" />
           {status}
         </p>
       </div>

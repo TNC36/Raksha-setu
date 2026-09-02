@@ -270,10 +270,10 @@ export default function SafeZones() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-neutral-900 mb-1">
+          <h1 className="text-xl font-semibold text-foreground mb-1">
             {t("safeZones.title")}
           </h1>
-          <p className="text-xs text-neutral-400">              {t("safeZones.subtitle")}
+          <p className="text-xs text-muted-foreground">              {t("safeZones.subtitle")}
           </p>
         </div>
         {/* Live data status indicator */}
@@ -284,12 +284,12 @@ export default function SafeZones() {
               {t("alerts.syncing")}
             </span>
           ) : liveStatus.facilities || liveStatus.earthquakes ? (
-            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-50 text-green-600 border border-green-200">
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-success/10 text-green-600 border border-green-200">
               <Wifi className="w-3 h-3" />
               {t("status.live")}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-neutral-100 text-neutral-500 border border-neutral-200">
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-secondary text-muted-foreground border border-border">
               <WifiOff className="w-3 h-3" />
               {t("status.demo")}
             </span>
@@ -308,7 +308,7 @@ export default function SafeZones() {
               className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                 disaster === dt
                   ? "text-white border-transparent"
-                  : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-300"
+                  : "bg-card text-muted-foreground border-border hover:border-primary/50"
               }`}
               style={
                 disaster === dt
@@ -323,19 +323,19 @@ export default function SafeZones() {
       </div>
 
       {/* Location detection */}
-      <div className="bg-white border border-neutral-200 rounded-xl p-4 mb-6">
+      <div className="bg-card border border-border rounded-xl p-4 mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <button
             onClick={detectLocation}
             disabled={loadingLocation}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
             <Crosshair className="w-3.5 h-3.5" />
             {loadingLocation ? t("safeZones.detecting") : t("safeZones.useMyLocation")}
           </button>
 
           {userLocation && (
-            <div className="text-xs text-neutral-500 flex flex-wrap gap-3">
+            <div className="text-xs text-muted-foreground flex flex-wrap gap-3">
               <span>
                 Lat: <strong>{userLocation.latitude.toFixed(4)}</strong>
               </span>
@@ -352,28 +352,28 @@ export default function SafeZones() {
           )}
 
           {locationError && (
-            <p className="text-xs text-red-600">{locationError}</p>
+            <p className="text-xs text-destructive">{locationError}</p>
           )}
         </div>
       </div>
 
       {/* Nearest shelter card */}
       {userLocation && nearestZone && (
-        <div className="bg-white border border-neutral-200 rounded-xl p-5 mb-6">
+        <div className="bg-card border border-border rounded-xl p-5 mb-6">
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
                 {t("safeZones.nearestSafeZone", { type: disaster })}
               </p>
-              <h3 className="text-base font-semibold text-neutral-900">
+              <h3 className="text-base font-semibold text-foreground">
                 {nearestZone.name}
               </h3>
-              <p className="text-xs text-neutral-500 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {nearestZone.type} · {nearestZone.location}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-lg font-semibold text-neutral-900">
+              <p className="text-lg font-semibold text-foreground">
                 {formatDistance(nearestZone.distance)}
               </p>
               <p
@@ -382,7 +382,7 @@ export default function SafeZones() {
                     ? "text-green-600"
                     : nearestZone.status === "Limited"
                     ? "text-amber-600"
-                    : "text-red-600"
+                    : "text-destructive"
                 }`}
               >
                 {nearestZone.status}
@@ -392,20 +392,20 @@ export default function SafeZones() {
 
           {/* OSRM Route info */}
           {routeResult && (
-            <div className="bg-neutral-50 rounded-lg p-3 mb-3">
+            <div className="bg-background rounded-lg p-3 mb-3">
               <div className="flex items-center gap-4 text-xs">
-                <span className="font-medium text-neutral-700">
+                <span className="font-medium text-foreground">
                   🛣️ Route: {routeResult.distanceFormatted}
                 </span>
-                <span className="text-neutral-400">·</span>
-                <span className="text-neutral-600">
+                <span className="text-muted-foreground">·</span>
+                <span className="text-muted-foreground">
                   ETA: {routeResult.durationFormatted}
                 </span>
                 {loadingRoute && (
                   <span className="text-amber-500 animate-pulse">Recalculating…</span>
                 )}
               </div>
-              <p className="text-[10px] text-neutral-400 mt-1">
+              <p className="text-[10px] text-muted-foreground mt-1">
                 {t("safeZones.roadNetworkRoute", { source: routeResult.source })}
               </p>
 
@@ -413,10 +413,10 @@ export default function SafeZones() {
               {hazardCheck && (
                 <div className={`mt-2 px-2 py-1.5 rounded text-[10px] font-medium border ${
                   hazardCheck.safetyLabel === "SAFE"
-                    ? "bg-green-50 text-green-700 border-green-200"
+                    ? "bg-success/10 text-green-700 border-green-200"
                     : hazardCheck.safetyLabel === "CAUTION"
                     ? "bg-amber-50 text-amber-700 border-amber-200"
-                    : "bg-red-50 text-red-700 border-red-200"
+                    : "bg-destructive/10 text-destructive border-destructive/30"
                 }`}>
                   {hazardCheck.safetyLabel === "SAFE" ? "✅" : hazardCheck.safetyLabel === "CAUTION" ? "⚠️" : "🚫"} {hazardCheck.explanation}
                 </div>
@@ -424,7 +424,7 @@ export default function SafeZones() {
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2 text-xs text-neutral-500 mb-4">
+          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground mb-4">
             <span>Capacity: {nearestZone.capacity}</span>
             <span>·</span>
             <span>{nearestZone.latitude.toFixed(4)}, {nearestZone.longitude.toFixed(4)}</span>
@@ -433,7 +433,7 @@ export default function SafeZones() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedZone(nearestZone)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
               <MapPin className="w-3 h-3" />
               {t("safeZones.showOnMap")}
@@ -442,7 +442,7 @@ export default function SafeZones() {
               onClick={() =>
                 openGoogleMapsNavigation(nearestZone.latitude, nearestZone.longitude)
               }
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border text-foreground rounded-lg hover:bg-secondary transition-colors"
             >
               <Navigation className="w-3 h-3" />
               {t("safeZones.navigate")}
@@ -486,13 +486,13 @@ export default function SafeZones() {
       <div className="grid lg:grid-cols-3 gap-6 mb-10">
         {/* Zones list */}
         <div className="lg:col-span-2">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-3">
+          <h2 className="text-sm font-semibold text-foreground mb-3">
             {meta.icon} {disaster} Safe Zones ({zonesWithDistance.length})
           </h2>
 
           {zonesWithDistance.length === 0 ? (
-            <div className="text-center py-12 bg-neutral-50 rounded-xl border border-neutral-200">
-              <p className="text-sm text-neutral-400">
+            <div className="text-center py-12 bg-background rounded-xl border border-border">
+              <p className="text-sm text-muted-foreground">
                 {convexZones === undefined                    ? t("common.loading")
                     : t("safeZones.noZones", { type: disaster })}
               </p>
@@ -502,25 +502,25 @@ export default function SafeZones() {
               {zonesWithDistance.map((zone) => (
                 <div
                   key={`zone-${zone.id}`}
-                  className={`bg-white border rounded-xl p-4 transition-colors cursor-pointer ${
+                  className={`bg-card border rounded-xl p-4 transition-colors cursor-pointer ${
                     selectedZone?.id === zone.id
-                      ? "border-neutral-900"
-                      : "border-neutral-200 hover:border-neutral-300"
+                      ? "border-primary"
+                      : "border-border hover:border-primary/50"
                   }`}
                   onClick={() => setSelectedZone(zone)}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-neutral-900">
+                      <h3 className="text-sm font-semibold text-foreground">
                         {zone.name}
                       </h3>
-                      <p className="text-xs text-neutral-500 mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {zone.type} · {zone.location}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
                       {userLocation && (
-                        <p className="text-sm font-medium text-neutral-900">
+                        <p className="text-sm font-medium text-foreground">
                           {formatDistance(zone.distance)}
                         </p>
                       )}
@@ -530,7 +530,7 @@ export default function SafeZones() {
                             ? "text-green-600"
                             : zone.status === "Limited"
                             ? "text-amber-600"
-                            : "text-red-600"
+                            : "text-destructive"
                         }`}
                       >
                         {zone.status}
@@ -538,7 +538,7 @@ export default function SafeZones() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between mt-3">
-                    <span className="text-[11px] text-neutral-400">
+                    <span className="text-[11px] text-muted-foreground">
                       Capacity: {zone.capacity}
                     </span>
                     <div className="flex gap-2">
@@ -547,7 +547,7 @@ export default function SafeZones() {
                           e.stopPropagation();
                           setSelectedZone(zone);
                         }}
-                        className="text-[11px] text-neutral-500 hover:text-neutral-900 transition-colors"
+                        className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {t("safeZones.showOnMap")}
                       </button>
@@ -556,7 +556,7 @@ export default function SafeZones() {
                           e.stopPropagation();
                           openGoogleMapsNavigation(zone.latitude, zone.longitude);
                         }}
-                        className="text-[11px] text-neutral-500 hover:text-neutral-900 transition-colors inline-flex items-center gap-1"
+                        className="text-[11px] text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
                       >
                         {t("safeZones.navigate")} <ExternalLink className="w-2.5 h-2.5" />
                       </button>
@@ -572,35 +572,35 @@ export default function SafeZones() {
         <div className="space-y-6">
           {/* Disaster-specific alerts */}
           <div>
-            <h3 className="text-sm font-semibold text-neutral-900 mb-3 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-neutral-500" />
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-muted-foreground" />
               {disaster} Alerts
             </h3>
             {filteredAlerts.length === 0 ? (
-              <p className="text-xs text-neutral-400">{t("alerts.noAlerts")}</p>
+              <p className="text-xs text-muted-foreground">{t("alerts.noAlerts")}</p>
             ) : (
               <div className="space-y-2">
                 {filteredAlerts.slice(0, 5).map((alert) => (
                   <div
                     key={`alert-${alert.id}`}
-                    className="bg-white border border-neutral-200 rounded-lg p-3"
+                    className="bg-card border border-border rounded-lg p-3"
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-xs font-medium text-neutral-900 flex-1">
+                      <p className="text-xs font-medium text-foreground flex-1">
                         {alert.title}
                       </p>
                       {alert.isLive && (
-                        <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium bg-green-50 text-green-600 border border-green-200">
-                          <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                        <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-medium bg-success/10 text-green-600 border border-green-200">
+                          <span className="w-1 h-1 rounded-full bg-success animate-pulse" />
                           LIVE
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
                       {alert.severity} · {alert.location}
                     </p>
                     {alert.source && (
-                      <p className="text-[10px] text-neutral-400 mt-1">
+                      <p className="text-[10px] text-muted-foreground mt-1">
                         Source: {alert.source}
                       </p>
                     )}
@@ -613,14 +613,14 @@ export default function SafeZones() {
           {/* Real-time nearby facilities */}
           {liveFacilities.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-neutral-900 mb-3">
+              <h3 className="text-sm font-semibold text-foreground mb-3">
                 🏥 {t("safeZones.nearbyFacilities")}
               </h3>
               <div className="space-y-2">
                 {liveFacilities.slice(0, 6).map((fac) => (
                   <div
                     key={`live-fac-${fac.id}`}
-                    className="bg-white border border-neutral-200 rounded-lg p-3 flex items-center gap-3"
+                    className="bg-card border border-border rounded-lg p-3 flex items-center gap-3"
                   >
                     <span className="text-sm">
                       {fac.type === "Hospital"
@@ -630,10 +630,10 @@ export default function SafeZones() {
                         : "🚒"}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-neutral-900 truncate">
+                      <p className="text-xs font-medium text-foreground truncate">
                         {fac.name}
                       </p>
-                      <p className="text-[10px] text-neutral-400">
+                      <p className="text-[10px] text-muted-foreground">
                         {fac.type} · {fac.latitude.toFixed(4)}, {fac.longitude.toFixed(4)}
                       </p>
                     </div>
@@ -642,7 +642,7 @@ export default function SafeZones() {
                         onClick={() =>
                           openGoogleMapsNavigation(fac.latitude, fac.longitude)
                         }
-                        className="text-[10px] text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-0.5 flex-shrink-0"
+                        className="text-[10px] text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 flex-shrink-0"
                       >
                         Nav <ExternalLink className="w-2 h-2" />
                       </button>
@@ -655,15 +655,15 @@ export default function SafeZones() {
 
           {/* Community Reports */}
           <div>
-            <h3 className="text-sm font-semibold text-neutral-900 mb-3">
+            <h3 className="text-sm font-semibold text-foreground mb-3">
               {t("safeZones.communityReports")}
             </h3>
-            <p className="text-[10px] text-neutral-400 mb-2 italic">
+            <p className="text-[10px] text-muted-foreground mb-2 italic">
               Demo reports — for demonstration purposes only
             </p>
             {DEFAULT_REPORTS.filter((r) => r.disaster === disaster).length ===
             0 ? (
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-muted-foreground">
                 No reports for this disaster.
               </p>
             ) : (
@@ -672,9 +672,9 @@ export default function SafeZones() {
                   (rpt) => (
                     <div
                       key={`rpt-${rpt.id}`}
-                      className="bg-white border border-neutral-200 rounded-lg p-3"
+                      className="bg-card border border-border rounded-lg p-3"
                     >
-                      <p className="text-xs text-neutral-700">{rpt.title}</p>
+                      <p className="text-xs text-foreground">{rpt.title}</p>
                     </div>
                   )
                 )}
@@ -688,15 +688,15 @@ export default function SafeZones() {
             if (guides.length === 0) return null;
             return (
               <div>
-                <h3 className="text-sm font-semibold text-neutral-900 mb-3">
+                <h3 className="text-sm font-semibold text-foreground mb-3">
                   {meta.icon} Safety Tips
                 </h3>
-                <div className="bg-white border border-neutral-200 rounded-lg p-3">
-                  <p className="text-xs font-medium text-neutral-900 mb-2">
+                <div className="bg-card border border-border rounded-lg p-3">
+                  <p className="text-xs font-medium text-foreground mb-2">
                     {guides[0].title}
                   </p>
                   {(guides[0].during || []).slice(0, 2).map((tip: string, i: number) => (
-                    <p key={`tip-${i}`} className="text-[11px] text-neutral-500 leading-relaxed">
+                    <p key={`tip-${i}`} className="text-[11px] text-muted-foreground leading-relaxed">
                       • {tip}
                     </p>
                   ))}
@@ -708,8 +708,8 @@ export default function SafeZones() {
       </div>
 
       {/* Data source disclaimer */}
-      <div className="mb-6 bg-neutral-50 border border-neutral-200 rounded-xl p-4 text-center">
-        <p className="text-[11px] text-neutral-400 leading-relaxed max-w-2xl mx-auto">
+      <div className="mb-6 bg-background border border-border rounded-xl p-4 text-center">
+        <p className="text-[11px] text-muted-foreground leading-relaxed max-w-2xl mx-auto">
           Live facility data sourced from OpenStreetMap (Overpass API). Earthquake data from USGS Earthquake Hazards Program.
           Weather alerts from Open-Meteo. Road-network routing via OSRM (Open Source Routing Machine).
           Safe zones and community reports stored in Convex database — replace with verified government data for production.

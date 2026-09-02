@@ -54,12 +54,12 @@ export default function ReadAloud({ text, label }: ReadAloudProps) {
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
       {label && (
-        <span className="text-[11px] text-neutral-400 mr-1">{label}</span>
+        <span className="text-[11px] text-muted-foreground mr-1">{label}</span>
       )}
       {status === "idle" && (
         <button
           onClick={start}
-          className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-colors"
+          className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-secondary text-muted-foreground hover:bg-primary/90 transition-colors"
           aria-label="Read aloud"
         >
           <Volume2 className="w-3 h-3" />
@@ -70,7 +70,7 @@ export default function ReadAloud({ text, label }: ReadAloudProps) {
         <>
           <button
             onClick={pause}
-            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-neutral-900 text-white hover:bg-neutral-800 transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
             aria-label="Pause"
           >
             <Pause className="w-3 h-3" />
@@ -78,7 +78,7 @@ export default function ReadAloud({ text, label }: ReadAloudProps) {
           </button>
           <button
             onClick={stop}
-            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
             aria-label="Stop"
           >
             <Square className="w-3 h-3" />
@@ -90,7 +90,7 @@ export default function ReadAloud({ text, label }: ReadAloudProps) {
         <>
           <button
             onClick={resume}
-            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-neutral-900 text-white hover:bg-neutral-800 transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
             aria-label="Resume"
           >
             <Play className="w-3 h-3" />
@@ -98,7 +98,7 @@ export default function ReadAloud({ text, label }: ReadAloudProps) {
           </button>
           <button
             onClick={stop}
-            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
             aria-label="Stop"
           >
             <Square className="w-3 h-3" />

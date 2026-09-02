@@ -4,10 +4,10 @@ import ReadAloud from "./ReadAloud";
 import { MapPin, Clock } from "lucide-react";
 
 const SEVERITY_STYLES: Record<AlertSeverity, string> = {
-  Low: "bg-neutral-100 text-neutral-600",
+  Low: "bg-secondary text-muted-foreground",
   Medium: "bg-amber-50 text-amber-700 border border-amber-200",
   High: "bg-orange-50 text-orange-700 border border-orange-200",
-  Critical: "bg-red-50 text-red-700 border border-red-200",
+  Critical: "bg-destructive/10 text-destructive border border-destructive/30",
 };
 
 interface AlertCardProps {
@@ -19,7 +19,7 @@ export default function AlertCard({ alert, compact }: AlertCardProps) {
   const meta = DISASTER_META[alert.type];
 
   return (
-    <article className="bg-white border border-neutral-200 rounded-xl overflow-hidden hover:border-neutral-300 transition-colors">
+    <article className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-colors">
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 flex-wrap">
@@ -41,17 +41,17 @@ export default function AlertCard({ alert, compact }: AlertCardProps) {
           />
         </div>
 
-        <h3 className="text-sm font-semibold text-neutral-900 mb-1">
+        <h3 className="text-sm font-semibold text-foreground mb-1">
           {alert.title}
         </h3>
 
         {!compact && (
-          <p className="text-xs text-neutral-500 leading-relaxed mb-3">
+          <p className="text-xs text-muted-foreground leading-relaxed mb-3">
             {alert.description}
           </p>
         )}
 
-        <div className="flex items-center gap-4 text-[11px] text-neutral-400">
+        <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             {alert.location}
@@ -65,13 +65,13 @@ export default function AlertCard({ alert, compact }: AlertCardProps) {
         {(alert.source || alert.isLive) && (
           <div className="flex items-center gap-2 mt-2">
             {alert.isLive && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700 border border-green-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-success/10 text-green-700 border border-green-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                 LIVE
               </span>
             )}
             {alert.source && (
-              <span className="text-[10px] text-neutral-400">
+              <span className="text-[10px] text-muted-foreground">
                 {alert.source}
               </span>
             )}
@@ -80,7 +80,7 @@ export default function AlertCard({ alert, compact }: AlertCardProps) {
                 href={alert.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] text-blue-500 hover:text-blue-700 underline"
+                className="text-[10px] text-blue-500 hover:text-info underline"
               >
                 Source
               </a>

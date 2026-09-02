@@ -31,7 +31,7 @@ export default function GuideCard({ guide }: GuideCardProps) {
     (guide.after?.length ?? 0) > 0;
 
   return (
-    <article className="bg-white border border-neutral-200 rounded-xl overflow-hidden">
+    <article className="bg-card border border-border rounded-xl overflow-hidden">
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
@@ -45,14 +45,14 @@ export default function GuideCard({ guide }: GuideCardProps) {
           <ReadAloud text={guideToText(guide)} label="" />
         </div>
 
-        <h3 className="text-sm font-semibold text-neutral-900 mb-1">
+        <h3 className="text-sm font-semibold text-foreground mb-1">
           {guide.title}
         </h3>
 
         {hasContent && (
           <button
             onClick={() => setOpen(!open)}
-            className="mt-2 text-xs text-neutral-500 hover:text-neutral-900 flex items-center gap-1 transition-colors"
+            className="mt-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
           >
             {open ? (
               <>
@@ -68,7 +68,7 @@ export default function GuideCard({ guide }: GuideCardProps) {
       </div>
 
       {open && hasContent && (
-        <div className="border-t border-neutral-100 px-4 py-4 space-y-4 bg-neutral-50">
+        <div className="border-t border-border px-4 py-4 space-y-4 bg-background">
           {guide.before?.length > 0 && (
             <GuideSection title="Before" items={guide.before} />
           )}
@@ -89,14 +89,14 @@ export default function GuideCard({ guide }: GuideCardProps) {
 function GuideSection({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
-      <h4 className="text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-2">
+      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">
         {title}
       </h4>
       <ul className="space-y-1.5">
         {items.map((item, i) => (
           <li
             key={`${title}-${i}`}
-            className="text-xs text-neutral-600 leading-relaxed pl-4 relative before:content-[''] before:absolute before:left-0 before:top-1.5 before:w-1.5 before:h-1.5 before:rounded-full before:bg-neutral-300"
+            className="text-xs text-muted-foreground leading-relaxed pl-4 relative before:content-[''] before:absolute before:left-0 before:top-1.5 before:w-1.5 before:h-1.5 before:rounded-full before:bg-muted-foreground/40"
           >
             {item}
           </li>

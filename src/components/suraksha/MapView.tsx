@@ -174,7 +174,7 @@ export default function MapView({
   if (selectedZone) bounds.push([selectedZone.latitude, selectedZone.longitude]);
 
   return (
-    <div className="relative rounded-xl overflow-hidden border border-neutral-200 bg-white">
+    <div className="relative rounded-xl overflow-hidden border border-border bg-card">
       <MapContainer
         center={center}
         zoom={zoom}
@@ -220,7 +220,7 @@ export default function MapView({
                 <div className="text-xs space-y-1">
                   <strong>{zone.name}</strong>
                   <br />
-                  <span className="text-neutral-500">{zone.type}</span>
+                  <span className="text-muted-foreground">{zone.type}</span>
                   <br />
                   Capacity: {zone.capacity}
                   <br />
@@ -253,7 +253,7 @@ export default function MapView({
                   <br />
                   {dz.label}
                   <br />
-                  <em className="text-neutral-400">Demo data</em>
+                  <em className="text-muted-foreground">Demo data</em>
                 </div>
               </Popup>
             </Circle>
@@ -354,7 +354,7 @@ export default function MapView({
                   <br />
                   {r.title}
                   <br />
-                  <em className="text-neutral-400">Demo report</em>
+                  <em className="text-muted-foreground">Demo report</em>
                 </div>
               </Popup>
             </Marker>
@@ -388,13 +388,13 @@ export default function MapView({
 
       {/* Route info badge */}
       {routeInfo && (
-        <div className="absolute bottom-16 left-4 z-[1000] bg-white border border-neutral-200 rounded-lg px-3 py-2 shadow-sm">
+        <div className="absolute bottom-16 left-4 z-[1000] bg-card border border-border rounded-lg px-3 py-2 shadow-sm">
           <div className="flex items-center gap-3 text-[11px]">
-            <span className="font-medium text-neutral-900">Route: {routeInfo.distance}</span>
-            <span className="text-neutral-400">·</span>
-            <span className="text-neutral-600">ETA: {routeInfo.duration}</span>
+            <span className="font-medium text-foreground">Route: {routeInfo.distance}</span>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-muted-foreground">ETA: {routeInfo.duration}</span>
           </div>
-          <p className="text-[10px] text-neutral-400 mt-0.5">{routeInfo.source}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">{routeInfo.source}</p>
         </div>
       )}
     </div>
@@ -427,22 +427,22 @@ function LayerPanel({
     <div className="absolute top-3 right-3 z-[1000]">
       <button
         onClick={() => setOpen(!open)}
-        className="bg-white border border-neutral-200 rounded-lg px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm hover:bg-neutral-50 transition-colors"
+        className="bg-card border border-border rounded-lg px-3 py-1.5 text-xs font-medium text-foreground shadow-sm hover:bg-secondary transition-colors"
       >
         Layers
       </button>
       {open && (
-        <div className="mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg p-2 w-44">
+        <div className="mt-1 bg-card border border-border rounded-lg shadow-lg p-2 w-44">
           {toggles.map((t) => (
             <label
               key={t.key}
-              className="flex items-center gap-2 px-2 py-1 text-xs text-neutral-600 cursor-pointer hover:bg-neutral-50 rounded"
+              className="flex items-center gap-2 px-2 py-1 text-xs text-muted-foreground cursor-pointer hover:bg-secondary rounded"
             >
               <input
                 type="checkbox"
                 checked={layers[t.key]}
                 onChange={() => onToggle(t.key)}
-                className="w-3 h-3 accent-neutral-900"
+                className="w-3 h-3 accent-primary"
               />
               <span
                 className="w-2 h-2 rounded-full"

@@ -30,7 +30,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.03),transparent_60%)]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 relative z-10">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-primary-foreground/70 mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-card/5 text-xs text-primary-foreground/70 mb-6">
               <Shield className="w-3 h-3" />
               {t("app.tagline")}
             </div>
@@ -43,14 +43,14 @@ export default function Home() {
             <div className="flex flex-wrap gap-3">
               <Link
                 to="/alerts"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-primary text-sm font-medium rounded-lg hover:bg-white/90 transition-colors no-underline"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-card text-primary text-sm font-medium rounded-lg hover:bg-card/90 transition-colors no-underline"
               >
                 {t("home.viewAlerts")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/safe-zones"
-                className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/20 text-white text-sm font-medium rounded-lg hover:bg-white/5 transition-colors no-underline"
+                className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/20 text-white text-sm font-medium rounded-lg hover:bg-card/5 transition-colors no-underline"
               >
                 <MapPin className="w-4 h-4" />
                 {t("home.findSafeZones")}
@@ -89,21 +89,21 @@ export default function Home() {
 
       {/* Safety Status Banner */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        <div className="bg-white border border-neutral-200 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
-            <AlertTriangle className="w-5 h-5 text-red-600" />
+        <div className="bg-card border border-border rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center flex-shrink-0">
+            <AlertTriangle className="w-5 h-5 text-destructive" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-neutral-900">
+            <h3 className="text-sm font-semibold text-foreground">
               {t("home.safetyStatus")} — {criticalAlerts.length} {t("home.alertsActive")}
             </h3>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {t("home.heroDescription")}
             </p>
           </div>
           <Link
             to="/alerts"
-            className="text-xs text-neutral-600 hover:text-neutral-900 font-medium no-underline flex items-center gap-1"
+            className="text-xs text-muted-foreground hover:text-foreground font-medium no-underline flex items-center gap-1"
           >
             {t("home.viewAll")} <ArrowRight className="w-3 h-3" />
           </Link>
@@ -112,10 +112,10 @@ export default function Home() {
 
       {/* Disaster Types */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-14">
-        <h2 className="text-lg font-semibold text-neutral-900 mb-1">
+        <h2 className="text-lg font-semibold text-foreground mb-1">
           {t("safeZones.title")}
         </h2>
-        <p className="text-xs text-neutral-400 mb-6">
+        <p className="text-xs text-muted-foreground mb-6">
           {t("safeZones.subtitle")}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -125,13 +125,13 @@ export default function Home() {
               <Link
                 key={dt}
                 to={`/safe-zones?disaster=${dt}`}
-                className="bg-white border border-neutral-200 rounded-xl p-4 text-center hover:border-neutral-300 transition-colors no-underline group"
+                className="bg-card border border-border rounded-xl p-4 text-center hover:border-primary/50 transition-colors no-underline group"
               >
                 <div className="text-2xl mb-2">{meta.icon}</div>
-                <p className="text-xs font-medium text-neutral-700 group-hover:text-neutral-900">
+                <p className="text-xs font-medium text-foreground group-hover:text-foreground">
                   {dt}
                 </p>
-                <p className="text-[10px] text-neutral-400 mt-0.5">
+                <p className="text-[10px] text-muted-foreground mt-0.5">
                   {meta.safeZoneLabel}
                 </p>
               </Link>
@@ -144,16 +144,16 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-14">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-semibold text-neutral-900 mb-1">
+            <h2 className="text-lg font-semibold text-foreground mb-1">
               {t("home.latestAlerts")}
             </h2>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-muted-foreground">
               {t("alerts.subtitle")}
             </p>
           </div>
           <Link
             to="/alerts"
-            className="text-xs text-neutral-600 hover:text-neutral-900 font-medium no-underline flex items-center gap-1"
+            className="text-xs text-muted-foreground hover:text-foreground font-medium no-underline flex items-center gap-1"
           >
             {t("home.viewAll")} <ArrowRight className="w-3 h-3" />
           </Link>
@@ -169,16 +169,16 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-14 mb-20">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-semibold text-neutral-900 mb-1">
+            <h2 className="text-lg font-semibold text-foreground mb-1">
               {t("home.recentGuides")}
             </h2>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-muted-foreground">
               {t("guides.subtitle")}
             </p>
           </div>
           <Link
             to="/guides"
-            className="text-xs text-neutral-600 hover:text-neutral-900 font-medium no-underline flex items-center gap-1"
+            className="text-xs text-muted-foreground hover:text-foreground font-medium no-underline flex items-center gap-1"
           >
             {t("home.viewAll")} <ArrowRight className="w-3 h-3" />
           </Link>
